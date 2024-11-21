@@ -44,10 +44,13 @@
         <div class="container" id="secondContainer">
             <div class="second__functional">
                 <div class="second__functional-header">
-                    <input type="text" class="second__functional-search" id="search" placeholder="Поиск" onkeyup="search()">
+                    <div class="second__functional-search">
+                        <input type="text" class="second__functional-input" id="search" placeholder="Поиск" onkeyup="search()">
+                        <p class="second__functional-clear">&#10006;</p>
+                    </div>
                     <img src="./assets/img/sort.svg" alt="img" class="second__functional-sort">
                 </div>
-                <div class="second__functional-list">
+                <div class="second__functional-list second__functional-list-close">
                     <p class="second__functional-title">Сортировка</p>
                     <div class="second__functional-sorting">
                         <div class="second__functional-sorting_1">
@@ -67,17 +70,7 @@
                         </div>
                     </div>
                     <p class="second__functional-title">Фильтрация</p>
-                    <div class="second__functional-filt">
-                        <div class="second__functional-filt_1">
-                            <input type="checkbox" id="firstCheckbox" class="second__functional-checkbox">
-                            <p>Достопримечательности</p>
-                        </div>
-                        <div class="second__functional-filt_2">
-                            <input type="checkbox" class="second__functional-checkbox second__functional-checkbox-2">Развлечения
-                        </div>
-                        <div class="second__functional-filt_3">
-                            <input type="checkbox" class="second__functional-checkbox second__functional-checkbox-3">Парки
-                        </div>
+                    <div class="second__functional-filters" id="filters">
                     </div>
                 </div>
             </div>
@@ -85,11 +78,8 @@
             <span class="second__loader"></span>
 
             <div class="second__pagination-page"></div>
-            
-            <div class="second__pagination">
-                <button class="second__pagination-link second__pagination-prev" >&larr;</button>
-                <button class="second__pagination-link second__pagination-next" >&rarr;</button>            
-            </div>
+            <p class="second__search-result"></p>
+            <div class="second__pagination"></div>
         </div>
     </section>
 
