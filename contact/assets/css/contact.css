@@ -102,17 +102,18 @@ li {
 }
 @media (max-width: 560px) {
   .header__header-logo {
+    width: calc(100% - 7vh);
     margin-left: -15px;
   }
 }
 @media (max-width: 468px) {
   .header__header-logo {
-    width: calc(100% - 9vh);
+    width: calc(100% - 7.5vh);
   }
 }
 @media (max-width: 330px) {
   .header__header-logo {
-    width: calc(100% - 8.7vh);
+    width: calc(100% - 8vh);
     margin-top: 33px;
     margin-left: -20px;
   }
@@ -235,12 +236,77 @@ iframe {
   animation: move-left 0.2s;
   padding: 10px;
 }
+@media (max-width: 540px) {
+  .modal {
+    width: 34%;
+  }
+}
+@media (max-width: 475px) {
+  .modal {
+    width: 38.5%;
+  }
+}
+@media (max-width: 340px) {
+  .modal {
+    width: 42.5%;
+  }
+}
+@media (max-width: 310px) {
+  .modal {
+    width: 45.5%;
+  }
+}
+@media (max-width: 290px) {
+  .modal {
+    width: 48.5%;
+  }
+}
 @keyframes move-left {
   from {
     width: 0;
   }
   to {
-    width: 25%;
+    width: 31%;
+  }
+}
+@media (max-width: 475px) {
+  @keyframes move-left {
+    from {
+      width: 0;
+    }
+    to {
+      width: 38.5%;
+    }
+  }
+}
+@media (max-width: 340px) {
+  @keyframes move-left {
+    from {
+      width: 0;
+    }
+    to {
+      width: 42.5%;
+    }
+  }
+}
+@media (max-width: 310px) {
+  @keyframes move-left {
+    from {
+      width: 0;
+    }
+    to {
+      width: 45.5%;
+    }
+  }
+}
+@media (max-width: 290px) {
+  @keyframes move-left {
+    from {
+      width: 0;
+    }
+    to {
+      width: 48.5%;
+    }
   }
 }
 .modal__title {
@@ -258,6 +324,7 @@ iframe {
   }
 }
 .modal__ul {
+  padding: 13.5px;
   margin-top: 20px;
   display: flex;
   flex-direction: column;
@@ -265,21 +332,38 @@ iframe {
   background: none;
   margin-top: 50%;
   z-index: 2000;
+  text-align: center;
 }
 .modal__burger {
+  color: #fff;
   cursor: pointer;
   margin-top: 18px;
-  margin-right: -100px;
-  width: 27px;
-  margin-left: 70%;
+  font-size: 17px;
+  margin-top: 20%;
+  margin-left: 80%;
+}
+@media (max-width: 430px) {
+  .modal__burger {
+    font-size: 14.7px;
+  }
+}
+@media (max-width: 390px) {
+  .modal__burger {
+    font-size: 13.5px;
+  }
 }
 .modal__li {
-  font-size: 15px;
+  font-size: 13px;
   color: #ffffff;
 }
-@media (max-width: 650px) {
+@media (max-width: 430px) {
   .modal__li {
-    font-size: 15px;
+    font-size: 14.7px;
+  }
+}
+@media (max-width: 390px) {
+  .modal__li {
+    font-size: 12.5px;
   }
 }
 
@@ -820,6 +904,12 @@ iframe {
 }
 @media (max-width: 430px) {
   .main__modal-close {
+    font-size: 31px;
+  }
+}
+@media (max-width: 400px) {
+  .main__modal-close {
+    left: 9%;
     font-size: 31px;
   }
 }

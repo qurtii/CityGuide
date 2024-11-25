@@ -34,7 +34,7 @@ const close_burger = document.getElementById('burger_close');
 
 
 open_burger.onclick = function(){
-    modal_burger.style.display = "block";
+    modal_burger.style.display = "flex";
     open_burger.style.display = "hide";
 }
 close_burger.onclick = function() {
