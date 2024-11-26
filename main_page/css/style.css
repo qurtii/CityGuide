@@ -697,6 +697,9 @@ body {
   }
 }
 .third__slider-btn {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   cursor: pointer;
   width: auto;
   padding: 16px;

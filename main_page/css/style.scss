@@ -596,6 +596,7 @@ iframe{
 
   
   &__slider-btn{
+    user-select: none;
     cursor: pointer;
     width: auto;
     padding: 16px;

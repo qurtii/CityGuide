@@ -1,33 +1,31 @@
 function makeDiv(className) {
     const div = document.createElement('div');
-    div.classList.add(className)
-
-    return div
+    div.classList.add(className);
+    return div;
 }
 
 function makeInput(type, id, className) {
     const input = document.createElement('input');
-    input.classList.add(className)
-    input.type = type
-    input.id = id
-
-    return input
+    input.classList.add(className);
+    input.type = type;
+    input.id = id;
+    return input;
 }
 
 function makeP(className, text) {
     const p = document.createElement('p');
-    p.classList.add(className)
-    p.innerText = text
-    return p
-}
-function getType (data){
-    return data.map(card => card.filter)
+    p.classList.add(className);
+    p.innerText = text;
+    return p;
 }
 
+function getType(data) {
+    return data.map(card => card.filter);
+}
 
 // Функция поиска
 const searchInput = document.getElementById('search');
-const searchNotFound = document.querySelector('.second__search-result');
+const searchNotFound = document.querySelector('.second__search-notfound');
 const searchClear = document.querySelector('.second__functional-clear');
 
 searchInput.addEventListener('input', () => {
@@ -35,7 +33,7 @@ searchInput.addEventListener('input', () => {
     searchClear.style.display = searchValue.trim() === '' ? 'none' : 'block';
     let filteredCards;
     // убирает пробелы
-    if (searchValue.trim() === '') {// Если поле поиска пустое, возвращаем все карточки
+    if (searchValue === '') { // Если поле поиска пустое, возвращаем все карточки
         filteredCards = displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
         searchNotFound.textContent = '';
     } else {
@@ -48,7 +46,6 @@ searchInput.addEventListener('input', () => {
             searchNotFound.textContent = '';
         } else {
             searchNotFound.textContent = 'Ничего не найдено :(';
-
         }
     }
 
@@ -62,7 +59,6 @@ searchInput.addEventListener('input', () => {
     displayCards(filteredCards);
     setupPagination(filteredCards);
 });
-
 
 // OPEN BURGER MENU
 const burgerOpenMenu = document.querySelector('.header__burger');
@@ -79,34 +75,35 @@ burgerCloseMenu.onclick = function () {
     burgerOpenMenu.style.display = 'flex';
 };
 
-
 // открытие настроек
 const sortOptions = document.querySelector('.second__functional-sort');
-const optionsList = document.querySelector('.second__functional-list')
+const optionsList = document.querySelector('.second__functional-list');
 
 sortOptions.onclick = function () {
     if (optionsList.classList.contains('second__functional-list-close')) {
         optionsList.classList.remove('second__functional-list-close');
         optionsList.classList.add('second__functional-list-open');
     } else {
-        optionsList.classList.remove('second__functional-list-open')
+        optionsList.classList.remove('second__functional-list-open');
         optionsList.classList.add('second__functional-list-close');
     }
-}
+};
 
 // сортировка
 function byName(cardName) {
     return (a, b) => a[cardName].localeCompare(b[cardName]);
 }
-function byID(CardID) {
-    return (a, b) => a[cardID] > b[CardID] ? 1 : -1;
+
+function byID(cardID) {
+    return (a, b) => a[cardID] > b[cardID] ? 1 : -1;
 }
-function ByPopularity(cardPopopularity) {
-    return (a, b) => a[cardPopopularity] > b[cardPopopularity] ? 1 : -1;
+
+function byPopularity(cardPopularity) {
+    return (a, b) => a[cardPopularity] > b[cardPopularity] ? 1 : -1;
 }
 
 function byNameReverse(cardNameReverse) {
-    return (a, b) => b[cardNameReverse] - a[cardNameReverse] ? 1 : -1;
+    return (a, b) => b[cardNameReverse].localeCompare(a[cardNameReverse]);
 }
 
 const firstSortingDiv = document.querySelector('.second__functional-sorting_1');
@@ -117,98 +114,54 @@ firstSortingDiv.onclick = function () {
         secondSortingDiv.style.display = 'flex';
         thirdSortingDiv.style.display = 'flex';
         firstSortingClose.style.display = 'none';
-        cards.sort(byName('id'));
+        cards.sort(byID('id'));
         displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
     } else {
         firstSortingClose.style.display = 'block';
         secondSortingDiv.style.display = 'none';
         thirdSortingDiv.style.display = 'none';
-        cards.sort(ByPopularity('popularity'));
+        cards.sort(byPopularity('popularity'));
         displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
     }
-}
+};
 
-
-const secondSortingDiv = document.querySelector('.second__functional-sorting_2')
+const secondSortingDiv = document.querySelector('.second__functional-sorting_2');
 const secondSortingClose = document.querySelector('.second__functional-sorting_close2');
 
 secondSortingDiv.onclick = function () {
     if (secondSortingClose.style.display === "block") {
-        firstSortingDiv.style.display = 'flex'
-        thirdSortingDiv.style.display = 'flex'
+        firstSortingDiv.style.display = 'flex';
+        thirdSortingDiv.style.display = 'flex';
         secondSortingClose.style.display = 'none';
-        cards.sort(byName('id'));
+        cards.sort(byID('id'));
         displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-    }
-    else {
+    } else {
         secondSortingClose.style.display = 'block';
         firstSortingDiv.style.display = 'none';
         thirdSortingDiv.style.display = 'none';
         cards.sort(byName('name'));
         displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-        console.log(cards)
     }
-}
+};
 
-const thirdSortingDiv = document.querySelector('.second__functional-sorting_3')
+const thirdSortingDiv = document.querySelector('.second__functional-sorting_3');
 const thirdSortingClose = document.querySelector('.second__functional-sorting_close3');
 
 thirdSortingDiv.onclick = function () {
     if (thirdSortingClose.style.display === "block") {
-        secondSortingDiv.style.display = 'flex'
-        firstSortingDiv.style.display = 'flex'
+        secondSortingDiv.style.display = 'flex';
+        firstSortingDiv.style.display = 'flex';
         thirdSortingClose.style.display = 'none';
-        cards.sort(byName('id'));
+        cards.sort(byID('id'));
         displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-    }
-    else {
+    } else {
         thirdSortingClose.style.display = "block";
         secondSortingDiv.style.display = 'none';
-        firstSortingDiv.style.display = 'none'
+        firstSortingDiv.style.display = 'none';
         cards.sort(byNameReverse('name'));
         displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
     }
-}
-
-// //фильтрация
-// const firstCheckBox = document.getElementById('firstCheckbox');
-// const secondCheckBox = document.getElementById('secondCheckbox');
-// const thirdCheckBox = document.getElementById('thirdCheckbox');
-
-// const typeShowplace = 'showplace';
-// const typeEntertainment = 'entertainment';
-// const typePark = 'park'
-
-// firstCheckBox.addEventListener('change', function () {
-//     if (firstCheckBox.checked) {
-//         firstTargetCards = cards.filter(item1 => item1.type === typeShowplace)
-//         if (firstTargetCards.length > 0) {
-//             console.log(firstTargetCards);
-//             displayCards(firstTargetCards)
-//         } else {
-//             console.log('Карточек для чекбокса не найдено!')
-//         }
-//     } else {
-//         displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-//     }
-// })
-
-
-// secondCheckBox.addEventListener('change', function () {
-//     if (secondCheckBox.checked) {
-//         secondTargetCards = cards.filter(item2 => item2.type === typeEntertainment)
-//         if (secondTargetCards.length > 0) {
-
-//             displayCards(secondTargetCards)
-//         } else {
-//             console.log('Карточек для чекбокса не найдено!')
-//         }
-//     } else {
-//         displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage))
-//     }
-
-
-// })
+};
 
 // пагинация
 const itemsPerPage = 4;
@@ -222,20 +175,18 @@ function fetchCards() {
             cards = data; // карточки в переменную
             displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
             setupPagination();
-            // надо подгрузить 
-            console.log(getType(cards))
-            displayFilters(getType(cards))
-            
-            document.querySelector('.second__loader').style.display = 'none'
+            displayFilters(getType(cards));
+
+            document.querySelector('.second__loader').style.display = 'none';
         })
         .catch(error => {
             console.error("Ошибка при получении данных", error);
         });
 }
 
-const secondContainer = document.getElementById('secondContainer')
-const secondPagin = document.querySelector('.second__pagination-page')
-const filtersDiv = document.getElementById("filters")
+const secondContainer = document.getElementById('secondContainer');
+const secondPagin = document.querySelector('.second__pagination-page');
+const filtersDiv = document.getElementById("filters");
 
 const uniqueFilters = new Set();
 
@@ -261,7 +212,7 @@ function displayFilters(filters) {
         input.addEventListener('change', function () {
             if (input.checked) {
                 console.log(filter.type, cards);
-                firstTargetCards = cards.filter(item1 => item1.filter.type.toLowerCase() === filter.type.toLowerCase());
+                const firstTargetCards = cards.filter(item1 => item1.filter.type.toLowerCase() === filter.type.toLowerCase());
                 if (firstTargetCards.length > 0) {
                     console.log(firstTargetCards);
                     displayCards(firstTargetCards);
@@ -290,7 +241,8 @@ function displayCards(data) {
         const itemCard = document.createElement('img');
         itemCard.src = card.card;
         itemCard.alt = card.name;
-        itemCard.id = card.name
+        itemCard.id = card.name;
+        itemCard.onclick = () => openDetails(card.UniqNum);
         itemCard.classList.add('second__card-img');
 
         cardLi.appendChild(itemCard);
@@ -300,8 +252,8 @@ function displayCards(data) {
     secondPagin.appendChild(cardUl);
 }
 
+const paginBtn = document.querySelector('.second__pagination');
 function setupPagination() {
-    const paginBtn = document.querySelector('.second__pagination')
     const totalPages = Math.ceil(cards.length / itemsPerPage);
 
     paginBtn.innerHTML = '';
@@ -320,8 +272,75 @@ function setupPagination() {
     } else {
         paginBtn.style.display = 'none';
     }
-
-
 }
 
 fetchCards();
+
+const functional = document.querySelector('.second__functional-header');
+function openDetails(itemUniqNum) {
+    window.location.href = `?id=${itemUniqNum}`;
+}
+
+async function fetchAttractions() {
+    try {
+        const response = await fetch("https://67444af2b4e2e04abea198bc.mockapi.io/cards/Attractions");
+        if (!response.ok) {
+            throw new Error('Ошибка сети');
+        }
+        return response.json();
+    } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
+        return [];
+    }
+}
+
+function renderAttractions(attractions) {
+    attractions.forEach(attraction => {
+        const attrDiv = document.createElement('div');
+        attrDiv.classList.add("details__card");
+        attrDiv.innerHTML = `
+
+        `;
+        secondPagin.appendChild(attrDiv);
+    });
+}
+
+async function showDetails(attractionId) {
+    const attractions = await fetchAttractions();
+    const attraction = attractions.find(a => a.UniqNum === attractionId);
+    if (attraction) {
+        secondPagin.style.display = 'none';
+        functional.style.display = 'none';
+        paginBtn.style.display = 'none';
+
+        const detailsDiv = document.querySelector('.details');
+        detailsDiv.innerHTML = `
+            <a href="#" onclick="history.back()"> ← Назад </a>
+            <div class="details__block">            
+                <h1>${attraction.name}</h1>
+                <div class='details__details-wrapper'>
+                    <p class="details__text">${attraction.About[2]}</p>
+                    <img src="${attraction.About[0]}" alt="Image" class="details__img">
+                </div>
+                <div class='details__details-wrapper adaptiv'>
+                    <img src="${attraction.About[1]}" alt="Image">
+                    <p>${attraction.About[3]}</p>
+                </div>
+                <h2>Достопримечательность на карте</h2>
+                <iframe src="${attraction.Map}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        `;
+        detailsDiv.classList.remove('hidden');
+    }
+}
+
+window.onload = async () => {
+    const attractions = await fetchAttractions();
+    renderAttractions(attractions);
+
+    const params = new URLSearchParams(window.location.search);
+    const attractionId = params.get('id');
+    if (attractionId) {
+        showDetails(attractionId);
+    }
+};
