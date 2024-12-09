@@ -1,3 +1,4 @@
+// Функция для создания элементов DOM
 function makeDiv(className) {
     const div = document.createElement('div');
     div.classList.add(className);
@@ -19,6 +20,16 @@ function makeP(className, text) {
     return p;
 }
 
+function makeCard(card) {
+    const itemCard = document.createElement('img');
+    itemCard.src = card.card;
+    itemCard.alt = card.name;
+    itemCard.id = card.name;
+    itemCard.onclick = () => openDetails(card.UniqNum);
+    itemCard.classList.add('second__card-img');
+    return itemCard;
+}
+
 function getType(data) {
     return data.map(card => card.filter);
 }
@@ -32,9 +43,9 @@ searchInput.addEventListener('input', () => {
     const searchValue = searchInput.value.toLowerCase();
     searchClear.style.display = searchValue.trim() === '' ? 'none' : 'block';
     let filteredCards;
-    // убирает пробелы
+    // убирает пробелы 
     if (searchValue === '') { // Если поле поиска пустое, возвращаем все карточки
-        filteredCards = displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
+        filteredCards = displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
         searchNotFound.textContent = '';
     } else {
         filteredCards = cards.filter(e =>
@@ -42,7 +53,6 @@ searchInput.addEventListener('input', () => {
         );
 
         if (filteredCards.length > 0) {
-            console.log(filteredCards);
             searchNotFound.textContent = '';
         } else {
             searchNotFound.textContent = 'Ничего не найдено :(';
@@ -52,7 +62,7 @@ searchInput.addEventListener('input', () => {
     searchClear.onclick = function () {
         searchInput.value = '';
         searchNotFound.textContent = '';
-        displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
+        displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
         searchClear.style.display = 'none';
     };
 
@@ -65,127 +75,128 @@ const burgerOpenMenu = document.querySelector('.header__burger');
 const burgerMenu = document.getElementById('modal_burger');
 const burgerCloseMenu = document.getElementById('burger_close');
 
-burgerOpenMenu.onclick = function () {
+function openBurgerMenu() {
     burgerMenu.style.display = 'flex';
     burgerOpenMenu.style.display = 'none';
-};
+}
 
-burgerCloseMenu.onclick = function () {
+function closeBurgerMenu() {
     burgerMenu.style.display = 'none';
     burgerOpenMenu.style.display = 'flex';
-};
+}
+
+burgerOpenMenu.onclick = openBurgerMenu;
+burgerCloseMenu.onclick = closeBurgerMenu;
 
 // открытие настроек
 const sortOptions = document.querySelector('.second__functional-sort');
 const optionsList = document.querySelector('.second__functional-list');
 
 sortOptions.onclick = function () {
-    if (optionsList.classList.contains('second__functional-list-close')) {
-        optionsList.classList.remove('second__functional-list-close');
-        optionsList.classList.add('second__functional-list-open');
-    } else {
-        optionsList.classList.remove('second__functional-list-open');
-        optionsList.classList.add('second__functional-list-close');
-    }
+    optionsList.classList.contains('second__functional-list-close') ? 
+        (optionsList.classList.remove('second__functional-list-close'), optionsList.classList.add('second__functional-list-open'))
+        : (optionsList.classList.remove('second__functional-list-open'), optionsList.classList.add('second__functional-list-close'));
 };
 
+// Функция для отправки запроса с параметрами сортировки
+async function fetchSortedCards(sortBy, order = 'asc') {
+    const url = new URL('https://672b185d976a834dd02595f5.mockapi.io/cards');
+    url.searchParams.append('sortBy', sortBy);
+    url.searchParams.append('order', order);
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'content-type': 'application/json' },
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при получении данных!');
+        }
+
+        cards = await response.json();
+        console.log(cards); 
+        displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
+        setupPagination();
+        displayFilters(getType(cards));
+    } catch (error) {
+        console.log('error: ' + error.message);
+    }
+}
+
 // сортировка
-function byName(cardName) {
-    return (a, b) => a[cardName].localeCompare(b[cardName]);
-}
-
-function byID(cardID) {
-    return (a, b) => a[cardID] > b[cardID] ? 1 : -1;
-}
-
-function byPopularity(cardPopularity) {
-    return (a, b) => a[cardPopularity] > b[cardPopularity] ? 1 : -1;
-}
-
-function byNameReverse(cardNameReverse) {
-    return (a, b) => b[cardNameReverse].localeCompare(a[cardNameReverse]);
-}
-
 const firstSortingDiv = document.querySelector('.second__functional-sorting_1');
 const firstSortingClose = document.querySelector('.second__functional-sorting_close1');
 
 firstSortingDiv.onclick = function () {
-    if (firstSortingClose.style.display === "block") {
-        secondSortingDiv.style.display = 'flex';
-        thirdSortingDiv.style.display = 'flex';
-        firstSortingClose.style.display = 'none';
-        cards.sort(byID('id'));
-        displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-    } else {
-        firstSortingClose.style.display = 'block';
-        secondSortingDiv.style.display = 'none';
-        thirdSortingDiv.style.display = 'none';
-        cards.sort(byPopularity('popularity'));
-        displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-    }
+    firstSortingClose.style.display === "block" ? 
+        (secondSortingDiv.style.display = 'flex', thirdSortingDiv.style.display = 'flex', firstSortingClose.style.display = 'none', fetchSortedCards('id', 'asc')) :
+        (firstSortingClose.style.display = 'block', secondSortingDiv.style.display = 'none', thirdSortingDiv.style.display = 'none', fetchSortedCards('popularity', 'desc'));
 };
 
 const secondSortingDiv = document.querySelector('.second__functional-sorting_2');
 const secondSortingClose = document.querySelector('.second__functional-sorting_close2');
-
 secondSortingDiv.onclick = function () {
-    if (secondSortingClose.style.display === "block") {
-        firstSortingDiv.style.display = 'flex';
-        thirdSortingDiv.style.display = 'flex';
-        secondSortingClose.style.display = 'none';
-        cards.sort(byID('id'));
-        displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-    } else {
-        secondSortingClose.style.display = 'block';
-        firstSortingDiv.style.display = 'none';
-        thirdSortingDiv.style.display = 'none';
-        cards.sort(byName('name'));
-        displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-    }
+    const isOpenSecond = secondSortingClose.style.display === "block";
+
+    firstSortingDiv.style.display = isOpenSecond ? 'flex' : 'none';
+    thirdSortingDiv.style.display = isOpenSecond ? 'flex' : 'none';
+    secondSortingClose.style.display = isOpenSecond ? 'none' : 'block';
+
+    fetchSortedCards(isOpenSecond ? 'id' : 'name', 'asc');
 };
 
 const thirdSortingDiv = document.querySelector('.second__functional-sorting_3');
 const thirdSortingClose = document.querySelector('.second__functional-sorting_close3');
 
 thirdSortingDiv.onclick = function () {
-    if (thirdSortingClose.style.display === "block") {
-        secondSortingDiv.style.display = 'flex';
-        firstSortingDiv.style.display = 'flex';
-        thirdSortingClose.style.display = 'none';
-        cards.sort(byID('id'));
-        displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-    } else {
-        thirdSortingClose.style.display = "block";
-        secondSortingDiv.style.display = 'none';
-        firstSortingDiv.style.display = 'none';
-        cards.sort(byNameReverse('name'));
-        displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-    }
+    const isOpenThird = thirdSortingClose.style.display === "block";
+
+    secondSortingDiv.style.display = isOpenThird ? 'flex' : 'none';
+    firstSortingDiv.style.display = isOpenThird ? 'flex' : 'none';
+    thirdSortingClose.style.display = isOpenThird ? 'none' : "block";
+
+    fetchSortedCards(isOpenThird ? 'id' : 'name', 'desc');
 };
 
 // пагинация
 const itemsPerPage = 4;
-let currentPage = 1;
+let page = 1;
 let cards = [];
+let isLoading = false;
 
-function fetchCards() {
-    fetch("https://672b185d976a834dd02595f5.mockapi.io/cards")
-        .then(response => response.json())
-        .then(data => {
-            cards = data; // карточки в переменную
-            displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
-            setupPagination();
-            displayFilters(getType(cards));
+async function fetchCards() {
+    try {
+        const response = await fetch('https://672b185d976a834dd02595f5.mockapi.io/cards');
 
-            document.querySelector('.second__loader').style.display = 'none';
-        })
-        .catch(error => {
-            console.error("Ошибка при получении данных", error);
-        });
+        if (!response.ok) {
+            throw new Error('Ошибка при получении данных!');
+        }
+
+        cards = await response.json();
+        displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
+        setupPagination();
+        displayFilters(getType(cards));
+    } catch (error) {
+        console.log('error: ' + error.message);
+    }
 }
 
-const secondContainer = document.getElementById('secondContainer');
-const secondPagin = document.querySelector('.second__pagination-page');
+const cardsPage = document.querySelector('.second__page');
+
+function displayCards(cards) {
+    cardsPage.innerHTML = '';
+
+    const cardsUl = document.createElement('ul');
+    cardsUl.classList.add('second__card-list');
+
+    cards.forEach(card => {
+        cardsUl.appendChild(makeCard(card));
+    });
+
+    cardsPage.appendChild(cardsUl);
+}
+
 const filtersDiv = document.getElementById("filters");
 
 const uniqueFilters = new Set();
@@ -199,9 +210,8 @@ function displayFilters(filters) {
         const input = makeInput('checkbox', 'firstCheckbox', 'second__functional-checkbox');
         const p = makeP('second__functional-text', filter.text);
 
-        // Проверка на уникальность фильтра
         if (uniqueFilters.has(filter.type)) {
-            return; // Предотвращаем добавление дубликата
+            return;
         } else {
             uniqueFilters.add(filter.type);
         }
@@ -211,45 +221,21 @@ function displayFilters(filters) {
 
         input.addEventListener('change', function () {
             if (input.checked) {
-                console.log(filter.type, cards);
                 const firstTargetCards = cards.filter(item1 => item1.filter.type.toLowerCase() === filter.type.toLowerCase());
                 if (firstTargetCards.length > 0) {
-                    console.log(firstTargetCards);
+                    paginBtn.style.display = 'none';
                     displayCards(firstTargetCards);
                 } else {
                     console.log('Карточек для чекбокса не найдено!');
                 }
             } else {
-                displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
+                paginBtn.style.display = 'flex';
+                displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
             }
         });
 
         filtersDiv.appendChild(filterElement);
     });
-}
-
-function displayCards(data) {
-    secondPagin.innerHTML = '';
-
-    const cardUl = document.createElement('ul');
-    cardUl.classList.add('second__card-list');
-
-    data.forEach(card => {
-        const cardLi = document.createElement('li');
-        cardLi.classList.add('second__card');
-
-        const itemCard = document.createElement('img');
-        itemCard.src = card.card;
-        itemCard.alt = card.name;
-        itemCard.id = card.name;
-        itemCard.onclick = () => openDetails(card.UniqNum);
-        itemCard.classList.add('second__card-img');
-
-        cardLi.appendChild(itemCard);
-        cardUl.appendChild(cardLi);
-    });
-
-    secondPagin.appendChild(cardUl);
 }
 
 const paginBtn = document.querySelector('.second__pagination');
@@ -263,12 +249,11 @@ function setupPagination() {
             pageButton.className = 'second__pagination-link';
             pageButton.textContent = i;
             pageButton.addEventListener('click', () => {
-                currentPage = i;
-                displayCards(cards.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
+                page = i;
+                displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
             });
             paginBtn.appendChild(pageButton);
         }
-        // ДОБАВИТЬ ФУНКЦИЮ КОТОРАЯ ВЫДЕЛЯЕТ СТРАНИЦУ НА КОТОРОЙ НАХОДИИТСЯ ПОЛЬЗОВАТЕЛЬ
     } else {
         paginBtn.style.display = 'none';
     }
@@ -281,35 +266,26 @@ function openDetails(itemUniqNum) {
     window.location.href = `?id=${itemUniqNum}`;
 }
 
-async function fetchAttractions() {
-    try {
-        const response = await fetch("https://67444af2b4e2e04abea198bc.mockapi.io/cards/Attractions");
-        if (!response.ok) {
-            throw new Error('Ошибка сети');
-        }
-        return response.json();
-    } catch (error) {
-        console.error('Ошибка при загрузке данных:', error);
-        return [];
-    }
+async function fetchSights() {
+    const response = await fetch("https://67444af2b4e2e04abea198bc.mockapi.io/cards/Attractions");
+    return response.json();
 }
 
-function renderAttractions(attractions) {
-    attractions.forEach(attraction => {
+function renderSights(sights) {
+    sights.forEach(sight => {
         const attrDiv = document.createElement('div');
         attrDiv.classList.add("details__card");
-        attrDiv.innerHTML = `
-
-        `;
-        secondPagin.appendChild(attrDiv);
+        cardsPage.appendChild(attrDiv);
     });
 }
 
-async function showDetails(attractionId) {
-    const attractions = await fetchAttractions();
-    const attraction = attractions.find(a => a.UniqNum === attractionId);
-    if (attraction) {
-        secondPagin.style.display = 'none';
+
+
+async function showDetails(sightId) {
+    const sights = await fetchSights();
+    const sight = sights.find(a => a.UniqNum === sightId);
+    if (sight) {
+        cardsPage.style.display = 'none';
         functional.style.display = 'none';
         paginBtn.style.display = 'none';
 
@@ -317,30 +293,159 @@ async function showDetails(attractionId) {
         detailsDiv.innerHTML = `
             <a href="#" onclick="history.back()"> ← Назад </a>
             <div class="details__block">            
-                <h1>${attraction.name}</h1>
-                <div class='details__details-wrapper'>
-                    <p class="details__text">${attraction.About[2]}</p>
-                    <img src="${attraction.About[0]}" alt="Image" class="details__img">
+                <h1>${sight.name}</h1>
+                <div class='details__details-part'>
+                    <p class="details__text">${sight.About[2]}</p>
+                    <img src="${sight.About[0]}" alt="Image" class="details__img">
                 </div>
-                <div class='details__details-wrapper adaptiv'>
-                    <img src="${attraction.About[1]}" alt="Image">
-                    <p>${attraction.About[3]}</p>
+                <div class='details__details-part adaptiv'>
+                    <img src="${sight.About[1]}" alt="Image">
+                    <p>${sight.About[3]}</p>
                 </div>
                 <h2>Достопримечательность на карте</h2>
-                <iframe src="${attraction.Map}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <iframe src="${sight.Map}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <h2>Отзывы</h2>
+                <div class='details__createComment' id='createComment'> 
+                    <form class='details__inputs'>
+                        <input placeholder='Ваше имя' class='details__nameInput' id="reviewName">
+                        <textarea placeholder='Введите сообщение' class='details__textInput' id="reviewText"></textarea>
+                    </form>
+                    <div class='details__hr' id='detailsHr'> </div>
+                    <div class='details__buttons'>
+                        <button class='details__btn' id='cancelReview'> Отмена </button>
+                        <button class='details__btn' type="submit" id="submitReview"> Оставить комментарий </button>
+                    </div>
+                </div>
+                <div class='details__allComments'></div>
             </div>
         `;
+
+
+        document.querySelector('.details__inputs').addEventListener('click', function(){
+            // hr
+            document.querySelector("#detailsHr").classList.add('active')
+            document.querySelector('.details__buttons').style.display = 'flex';
+        })
+
+        document.getElementById('cancelReview').addEventListener('click', function(){
+            document.querySelector('.details__inputs').reset();
+            document.querySelector('.details__buttons').style.display = 'none';
+            document.querySelector("#detailsHr").classList.remove('active')
+        })
+
+        document.getElementById('reviewText').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        
+            if (document.getElementById('reviewText').value.length > 0) {
+                document.getElementById('submitReview').classList.add('active');
+            } else {
+                document.getElementById('submitReview').classList.remove('active');
+            }
+        });
+
         detailsDiv.classList.remove('hidden');
+
+
+        loadReviews(sight.UniqNum);
+
+
+        document.getElementById('submitReview').addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const attractionId = sight.UniqNum;
+            const reviewName = document.getElementById('reviewName').value;
+            const reviewText = document.getElementById('reviewText').value;
+
+            const reviewData = {
+                name: reviewName,
+                text: reviewText,
+                createdAt: new Date().toISOString()
+            };
+
+            fetch(`https://672b185d976a834dd02595f5.mockapi.io/cards/${attractionId}`, {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.reviews) {
+                    data.reviews = [];
+                }
+                data.reviews.push(reviewData);
+
+                return fetch(`https://672b185d976a834dd02595f5.mockapi.io/cards/${attractionId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Отзыв успешно добавлен:', data);
+                loadReviews(attractionId); 
+                document.querySelector('.details__inputs').reset();
+                document.querySelector('.details__buttons').style.display = 'none';
+                document.querySelector("#detailsHr").classList.remove('active')
+                document.getElementById('submitReview').classList.remove('active');
+                
+            })
+            .catch(error => {
+                console.error('Ошибка при добавлении отзыва:', error);
+            });
+        });
     }
 }
 
 window.onload = async () => {
-    const attractions = await fetchAttractions();
-    renderAttractions(attractions);
+    const sights = await fetchSights();
+    renderSights(sights);
 
     const params = new URLSearchParams(window.location.search);
-    const attractionId = params.get('id');
-    if (attractionId) {
-        showDetails(attractionId);
+    const sightId = params.get('id');
+    if (sightId) {
+        showDetails(sightId);
     }
 };
+
+
+function loadReviews(attractionId) {
+    fetch(`https://672b185d976a834dd02595f5.mockapi.io/cards/${attractionId}`)
+        .then(response => response.json())
+        .then(data => {
+            const reviewsContainer = document.querySelector('.details__allComments');
+            reviewsContainer.innerHTML = ''; 
+
+            if (data.reviews) {
+                data.reviews.forEach(review => {
+                    const reviewElement = document.createElement('div');
+                    reviewElement.classList.add('details__comment');
+                    reviewElement.innerHTML = `
+                    <img src="https://live.staticflickr.com/65535/54192929955_ce85969884_o.png" alt="avatar" class='details__comment-img'>
+                    <div class='details__comment-info'> 
+                        <div class='details__comment-header'>
+                            <div class='details__comment-name'>${review.name}</div>
+                            <div class='details__comment-date'>${new Date(review.createdAt).toLocaleString('ru-RU', options)}</div>
+                        </div>
+                            <div class='details__comment-text' >${review.text}</div>
+                    </div>
+                    `;
+                    reviewsContainer.appendChild(reviewElement);
+                });
+            } else {
+                reviewsContainer.innerHTML = '<p>Пока нет отзывов.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при загрузке отзывов:', error);
+        });
+}
+
+let options =  { 
+    year: '2-digit', 
+    month: 'numeric', 
+    day: 'numeric', 
+    hour: 'numeric', 
+    minute: 'numeric' 
+}

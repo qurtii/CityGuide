@@ -595,7 +595,7 @@ body {
   border: 6px solid #FFF;
   border-bottom-color: #000000;
   border-radius: 50%;
-  display: flex;
+  display: none;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
 }
@@ -607,7 +607,7 @@ body {
     transform: rotate(360deg);
   }
 }
-.second__pagination-page {
+.second__page {
   animation: showPage 0.8s;
   animation-iteration-count: 1;
 }
@@ -1091,7 +1091,6 @@ body {
 .details__block {
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 .details a {
   display: flex;
@@ -1128,7 +1127,7 @@ body {
 }
 .details h1 {
   display: flex;
-  margin-top: 20px;
+  margin: -20px auto;
   text-align: center;
   font-size: 35px;
   max-width: 650px;
@@ -1168,19 +1167,19 @@ body {
     font-size: 23px;
   }
 }
-.details__details-wrapper {
+.details__details-part {
   margin-top: 150px;
   display: flex;
   align-items: center;
   gap: 40px;
 }
 @media (max-width: 790px) {
-  .details__details-wrapper {
+  .details__details-part {
     flex-direction: column;
   }
 }
 @media (max-width: 560px) {
-  .details__details-wrapper {
+  .details__details-part {
     margin-top: 75px;
   }
 }
@@ -1229,6 +1228,9 @@ body {
   }
 }
 .details img {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   max-width: 600px;
   max-height: 325px;
 }
@@ -1269,7 +1271,7 @@ body {
   }
 }
 .details h2 {
-  font-size: 28px;
+  font-size: 30px;
   margin-top: 140px;
   text-align: center;
 }
@@ -1302,6 +1304,9 @@ body {
   }
 }
 .details iframe {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   display: flex;
   margin: 50px auto;
   margin-top: 50px;
@@ -1345,11 +1350,142 @@ body {
     height: 335px;
   }
 }
+.details h3 {
+  margin-top: 85px;
+}
+.details__createComment {
+  margin-top: 40px;
+  max-width: 590px;
+  padding: 20px;
+  border-radius: 6px;
+}
+.details__inputs {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  gap: 12px;
+}
+.details__nameInput {
+  border: none;
+  padding: 8px 8px 8px 28px;
+  font-size: 17px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  background: url(../img/people.png) no-repeat left center;
+  background-size: 17px 17px;
+}
+.details__textInput {
+  width: 540px;
+  height: 40px;
+  outline: none;
+  border: none;
+  padding-left: 6px;
+  font-size: 16px;
+  resize: none;
+  overflow: hidden;
+  font-family: Montserrat;
+}
+.details__hr {
+  border-top: 1px solid #e0e0e0;
+  margin: 10px 0;
+  max-width: 600px;
+}
+.details__buttons {
+  margin-top: 20px;
+  display: none;
+  justify-content: end;
+  gap: 10px;
+}
+.details__btn {
+  cursor: pointer;
+  border: 1px solid #000;
+  background: none;
+  padding: 7px 10px;
+  border-radius: 4px;
+}
+.details__allComments {
+  display: flex;
+  flex-direction: column;
+  margin-top: 50px;
+  gap: 50px;
+}
+.details__comment {
+  display: flex;
+  gap: 13px;
+  align-items: start;
+}
+.details__comment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.details__comment-header {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+.details__comment-name {
+  font-size: 20px;
+  font-weight: 500;
+}
+.details__comment-date {
+  font-size: 14.5px;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  color: #9a9797;
+}
+.details__comment img {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  max-width: 43px;
+  border-radius: 50%;
+}
 
 @media (max-width: 790px) {
   .adaptiv {
     display: flex;
     flex-direction: column-reverse;
     align-items: center;
+  }
+}
+
+#submitReview {
+  background-color: initial;
+}
+
+#submitReview.active {
+  animation: showAccept 0.35s;
+  background-color: #008be7;
+}
+@keyframes showAccept {
+  from {
+    background-color: initial;
+  }
+  to {
+    background-color: #008be7;
+  }
+}
+
+#detailsHr {
+  color: #e0e0e0;
+  opacity: 0.5;
+}
+
+#detailsHr.active {
+  animation: showLine 0.4s;
+  opacity: 1;
+  border-color: #000;
+}
+@keyframes showLine {
+  from {
+    opacity: 0.5;
+    border-color: #e0e0e0;
+  }
+  to {
+    opacity: 1;
+    border-color: #000;
   }
 }

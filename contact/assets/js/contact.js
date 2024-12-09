@@ -92,7 +92,6 @@ document.querySelector('.main__modal-form').addEventListener('submit', function(
         
         setTimeout(() => {
             DateSent.classList.remove('main__send-show')
-            console.log('Timeout')
         }, 3000)
     })
     .catch((error) => {

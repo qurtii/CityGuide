@@ -562,7 +562,7 @@ body {
     border: 6px solid #FFF;
     border-bottom-color: #000000;
     border-radius: 50%;
-    display: flex;
+    display: none;
     box-sizing: border-box;
     animation: rotation 1s linear infinite;
   }
@@ -577,7 +577,7 @@ body {
     }
   }
 
-  &__pagination-page {
+  &__page {
     animation: showPage 0.8s;
     animation-iteration-count: 1;
 
@@ -1037,7 +1037,6 @@ body {
   &__block{
     display: flex;
     flex-direction: column;
-    align-items: center;
   }
   a{
     display: flex;
@@ -1067,7 +1066,7 @@ body {
   }
   h1{
     display: flex;
-    margin-top: 20px;
+    margin: -20px auto;
     text-align: center;
     font-size: 35px;
     max-width: 650px;
@@ -1093,7 +1092,7 @@ body {
       font-size: 23px;
     }
   }
-  &__details-wrapper{
+  &__details-part{
     margin-top: 150px;
     display: flex;
     align-items: center;
@@ -1139,6 +1138,7 @@ body {
 
   }
   img{
+    user-select: none;
     max-width: 600px;
     max-height: 325px;
     @media (max-width: 1050px) {
@@ -1168,7 +1168,7 @@ body {
     
   }
   h2{
-    font-size: 28px;
+    font-size: 30px;
     margin-top: 140px;
     text-align: center;
     @media (max-width: 870px) {
@@ -1191,6 +1191,7 @@ body {
     }
   }
   iframe{
+    user-select: none;
     display: flex;
     margin: 50px auto;
     margin-top: 50px;
@@ -1222,6 +1223,101 @@ body {
       height: 335px;
     }
   }
+  h3{
+    margin-top: 85px;
+  }
+  &__createComment{
+    margin-top: 40px;
+    max-width: 590px;
+    // border: 1px solid;
+    padding: 20px;
+    border-radius: 6px;
+  }
+  &__inputs{
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    gap: 12px;
+  }
+  &__nameInput {
+    border: none;
+    padding: 8px 8px 8px 28px;
+    font-size: 17px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    background: url(../img/people.png) no-repeat left center; // Исправлен путь и добавлен background
+    background-size: 17px 17px;
+  }
+  &__textInput{
+    width: 540px;
+    height: 40px;
+    outline: none;
+    border: none;
+    padding-left: 6px;
+    font-size: 16px;
+    resize: none; 
+    overflow: hidden; 
+    font-family: Montserrat;
+  }
+  &__hr{
+    border-top: 1px solid #e0e0e0; 
+    margin: 10px 0; 
+    max-width: 600px;
+  }
+  &__buttons{
+    margin-top: 20px;
+    display: none;
+    justify-content: end;
+    gap: 10px;
+  }
+  &__btn{
+    cursor: pointer;
+    border: 1px solid #000;
+    background: none;
+    padding: 7px 10px;
+    border-radius: 4px;
+  }
+  #submitReview{
+
+  }
+
+  &__allComments{
+    display: flex;
+    flex-direction: column;
+    margin-top: 50px;
+    gap: 50px;
+  }
+  &__comment{
+    display: flex;
+    gap: 13px;
+    align-items: start;
+    &-info{
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    &-header{
+      display: flex;
+      align-items: end;
+      gap: 10px;
+    }
+    &-name{
+      font-size: 20px;
+      font-weight: 500;
+    }
+    &-date{
+      font-size: 14.5px;
+      user-select: none;
+      color: #9a9797;
+    }
+    img{
+      user-select: none;
+      max-width: 43px;
+      border-radius: 50%;
+    }
+
+  }
 }
 
 .adaptiv{
@@ -1230,4 +1326,52 @@ body {
     flex-direction: column-reverse;
     align-items: center;
   }
+}
+
+#submitReview {
+  background-color: initial; 
+  // animation: showAccept 0.35s;
+  // @keyframes showAccept {
+  //   from{
+  //     background-color: initial;
+  //   }
+  //   to  {
+  //     background-color: #008be7; 
+  //   }
+  // }
+}
+
+#submitReview.active {
+  animation: showAccept 0.35s;
+  @keyframes showAccept {
+    from{
+      background-color: initial;
+    }
+    to  {
+      background-color: #008be7; 
+    }
+  }
+  background-color: #008be7; 
+}
+
+
+#detailsHr{
+  color: #e0e0e0;
+  opacity: 0.5;
+}
+
+#detailsHr.active{
+  animation: showLine 0.4s;
+  @keyframes showLine {
+    from {
+      opacity: 0.5;
+      border-color: #e0e0e0;
+    }
+    to {
+      opacity: 1;
+      border-color: #000;
+    }
+  }
+  opacity: 1;
+  border-color: #000;
 }
