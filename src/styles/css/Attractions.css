@@ -1,21 +1,21 @@
 @font-face {
   font-family: Montserrat;
-  src: url("../fonts/Montserrat-Bold.ttf");
+  src: url("../../fonts/Montserrat-Bold.ttf");
   font-weight: 700;
 }
 @font-face {
   font-family: Montserrat;
-  src: url("../fonts/Montserrat-Regular.ttf");
+  src: url("../../fonts/Montserrat-Regular.ttf");
   font-weight: 400;
 }
 @font-face {
   font-family: Montserrat;
-  src: url("../fonts/Montserrat-Medium.ttf");
+  src: url("../../fonts/Montserrat-Medium.ttf");
   font-weight: 500;
 }
 @font-face {
   font-family: Montserrat;
-  src: url("../fonts/Montserrat-SemiBold.ttf");
+  src: url("../../fonts/Montserrat-SemiBold.ttf");
   font-weight: 600;
 }
 * {
@@ -1089,6 +1089,7 @@ body {
 }
 
 .details__block {
+  justify-content: center;
   display: flex;
   flex-direction: column;
 }
@@ -1183,51 +1184,52 @@ body {
     margin-top: 75px;
   }
 }
-.details p {
+.details__text {
   font-size: 20px;
   max-width: 550px;
 }
 @media (max-width: 1050px) {
-  .details p {
+  .details__text {
     font-size: 18px;
   }
 }
 @media (max-width: 870px) {
-  .details p {
+  .details__text {
     font-size: 17px;
   }
 }
 @media (max-width: 870px) {
-  .details p {
+  .details__text {
     font-size: 16.5px;
     max-width: 475px;
   }
 }
 @media (max-width: 560px) {
-  .details p {
+  .details__text {
     font-size: 15.5px;
     max-width: 425px;
   }
 }
 @media (max-width: 480px) {
-  .details p {
+  .details__text {
     font-size: 15px;
     max-width: 390px;
   }
 }
 @media (max-width: 420px) {
-  .details p {
+  .details__text {
     font-size: 14px;
     max-width: 320px;
   }
 }
 @media (max-width: 360px) {
-  .details p {
+  .details__text {
     font-size: 12.5px;
     max-width: 300px;
   }
 }
 .details img {
+  cursor: pointer;
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
@@ -1353,6 +1355,13 @@ body {
 .details h3 {
   margin-top: 85px;
 }
+.details__reviews {
+  position: relative;
+  left: 0;
+  display: flex;
+  justify-content: start;
+  flex-direction: column;
+}
 .details__createComment {
   margin-top: 40px;
   max-width: 590px;
@@ -1372,7 +1381,7 @@ body {
   border-radius: 4px;
   display: flex;
   align-items: center;
-  background: url(../img/people.png) no-repeat left center;
+  background: url(../img/user-avatar.jpg) no-repeat left center;
   background-size: 17px 17px;
 }
 .details__textInput {
@@ -1443,6 +1452,58 @@ body {
   max-width: 43px;
   border-radius: 50%;
 }
+.details__images-wrapper {
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: none;
+  justify-content: center;
+  -webkit-backdrop-filter: blur(0.85vh);
+          backdrop-filter: blur(0.85vh);
+  -webkit-backdrop-filter: brightness(23%);
+          backdrop-filter: brightness(23%);
+  position: fixed;
+  margin: 0 auto;
+  animation: openSlider 0.1s;
+}
+@keyframes openSlider {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.details__images {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 100px;
+  width: unset;
+}
+.details__slider-img {
+  max-width: 1200px;
+}
+.details__slider-btn {
+  font-size: 40px;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  background-color: #f5f5f5;
+  padding: 5px;
+}
+.details__slider-btn:hover {
+  background-color: #dbdbdb;
+}
+.details__next {
+  border-radius: 0px 5px 5px 0px;
+}
+.details__previus {
+  border-radius: 5px 0px 0px 5px;
+}
 
 @media (max-width: 790px) {
   .adaptiv {
@@ -1458,14 +1519,14 @@ body {
 
 #submitReview.active {
   animation: showAccept 0.35s;
-  background-color: #008be7;
+  background-color: #065fd4;
 }
 @keyframes showAccept {
   from {
     background-color: initial;
   }
   to {
-    background-color: #008be7;
+    background-color: #065fd4;
   }
 }
 
