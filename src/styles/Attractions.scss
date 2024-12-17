@@ -60,21 +60,30 @@ li {
 
 body {
   margin: 0 auto;
+  // background-color: #E3E3E3;
 }
 
 .header {
   font-family: Montserrat;
   font-weight: 800;
-  height: 10px;
-
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  position: fixed;
+  background-color: #000;
+  width: 100%;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   &__block {
+    width: 100%;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-
+    padding: 0px 15%;
     @media (max-width: 650px) {
       gap: 15px;
-      justify-content: none;
+      justify-content: flex-start;
     }
 
     @media (max-width: 330px) {
@@ -83,6 +92,8 @@ body {
   }
 
   &__header-logo {
+    max-width: 170px;
+    height: 43px;
     @media (max-width: 945px) {
       margin-top: 25px;
       width: calc(100% - 2.5vh);
@@ -112,7 +123,11 @@ body {
       margin-left: -20px;
     }
   }
-
+  &__nav{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
   &__burger {
     margin-top: 25px;
     display: none;
@@ -142,7 +157,6 @@ body {
 
   &__ul {
     display: flex;
-    align-items: center;
     gap: 25px;
 
     @media (max-width: 680px) {
@@ -157,7 +171,7 @@ body {
   &__li {
     font-family: Montserrat;
     font-weight: 800;
-    color: #000;
+    color: #fff;
     font-size: 20px;
     border: none;
 
@@ -178,6 +192,26 @@ body {
       font-size: 15px;
     }
   }
+  &__read-bar{
+    display: none;
+    z-index: -1;
+    -webkit-appearance: none; /* Убираем стандартные стили для браузеров на основе WebKit */
+    appearance: none; /* Убираем стандартные стили для других браузеров */
+    position: fixed;
+    // top: 67px;
+    width: 110%;
+    height: 71px;
+    left: 0;
+    background-color: #000;
+    border: none;
+    &::-webkit-progress-bar{
+      background-color: #000; 
+    }
+    &::-webkit-progress-value{
+      background-color: #292929;
+    }
+  }
+  
 }
 
 .modal {
@@ -319,7 +353,18 @@ body {
   display: flex;
   align-items: center;
   margin-top: 200px;
+  &__next{
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 65px;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    padding-top: 25%;
+    left: 0;
+    text-align: center;
 
+  }
   &__functional {
     display: flex;
     flex-direction: column;
@@ -333,7 +378,7 @@ body {
 
     &-search {
       display: flex;
-      justify-content: end;
+      justify-content: flex-end;
       align-items: center;
     }
 
@@ -594,7 +639,7 @@ body {
 
   &__card-list {
     display: grid;
-    grid-template-columns: 435px 435px;
+    grid-template-columns: 480px 480px;
     gap: 30px;
 
     @media (max-width: 1050px) {
@@ -638,8 +683,8 @@ body {
 
   &__card-img {
     cursor: pointer;
-    max-height: 260px;
-    max-width: 420px;
+    max-height: 290px;
+    max-width: 480px;
 
     @media (max-width: 1050px) {
       max-width: 380px;
@@ -678,7 +723,15 @@ body {
       max-height: 135px;
       max-width: 230px;
     }
-
+  }
+  &__card-title{
+    font-family: Montserrat;
+    font-size: 23px;
+    font-weight: 600;
+    color: #FFF;
+    position: absolute;
+    margin-top: -45px;
+    padding: 0px 0px 10px 15px;
   }
 
   &__search-notfound {
@@ -1034,6 +1087,17 @@ body {
 }
 
 .details{
+  &__header{
+    display: flex;
+    justify-content: space-between;
+    &_reviews{
+      display: flex;
+      align-items: center;
+      &-img{
+        width: 65px;
+      }
+    }
+  }
   &__block {
     justify-content: center;
     display: flex;
@@ -1044,7 +1108,7 @@ body {
     left: 1px;
     color: #000;
     position: relative;
-    top: -70px;
+    // top: -70px;
     font-size: 21px;
     cursor: pointer;
     &:hover{
@@ -1066,6 +1130,7 @@ body {
     
   }
   h1{
+    padding-top: 120px;
     display: flex;
     margin: -20px auto;
     text-align: center;
@@ -1250,13 +1315,17 @@ body {
   }
   &__nameInput {
     border: none;
-    padding: 8px 8px 8px 28px;
+    padding: 8px 8px 8px 0;
     font-size: 17px;
     border-radius: 4px;
     display: flex;
     align-items: center;
-    background: url(../img/user-avatar.jpg) no-repeat left center; // Исправлен путь и добавлен background
-    background-size: 17px 17px;
+    &::before{
+      content: '';
+      background: url(../img/humanicon.png) no-repeat left center; 
+      width: 17px;
+      height: 17px;
+    }
   }
   &__textInput{
     width: 540px;
@@ -1277,7 +1346,7 @@ body {
   &__buttons{
     margin-top: 20px;
     display: none;
-    justify-content: end;
+    justify-content: flex-end;
     gap: 10px;
   }
   &__btn{
@@ -1317,6 +1386,9 @@ body {
       font-size: 14.5px;
       user-select: none;
       color: #9a9797;
+    }
+    &-text{
+      width: 500px;
     }
     img{
       user-select: none;
@@ -1373,6 +1445,18 @@ body {
   &__previus{
     border-radius: 5px 0px 0px 5px;
   }
+  &__comment-likes{
+    background-color: #b6b6b6;
+    margin-top: 5px;
+    padding: 4px;
+    border-radius: 4px;
+    max-width: 50px;
+    cursor: pointer;
+  }
+  &__like-btn{
+    border: none;
+    background: none;
+  }
 }
 
 .adaptiv{
@@ -1403,7 +1487,7 @@ body {
       background-color: initial;
     }
     to  {
-      background-color: #065fd4; 
+      background-color: #065FFF; 
     }
   }
   background-color: #065fd4; 
@@ -1429,4 +1513,38 @@ body {
   }
   opacity: 1;
   border-color: #000;
+}
+
+
+
+.second__functional-text.active {
+  
+  font-weight: 700; /* Жирный текст для активного элемента */
+}
+
+.second__functional-text{
+  font-weight: 300; /* Нормальный текст для неактивного элемента */
+}
+
+
+.second__back {
+  position: fixed;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none; /* Скрываем кнопку по умолчанию */
+  z-index: 1000;
+  padding: 10px 20px;
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  height: 80%;
+  
+}
+
+.second__back:hover {
+  background-color: #0056b3;
 }

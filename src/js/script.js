@@ -45,4 +45,27 @@ modal_burger.onclick = function(event) {
     if (event.target === modal_burger) {
         close_burger.onclick();
     }
+} 
+
+
+function handleIntersection(entries, observer) {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visiable');
+        } else {
+            entry.target.classList.remove('visiable');
+        }
+    });
 }
+
+const observer = new IntersectionObserver(handleIntersection, {
+    root: null,
+    threshold: 0.38
+})
+
+const subjects = document.querySelectorAll('.animation')
+
+
+subjects.forEach(subject => {
+    observer.observe(subject);
+});

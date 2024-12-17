@@ -9,42 +9,40 @@
 </head>
 <body>
     <header class="header">
-        <div class="container">
-            <div class="header__block">
-                <a href="../../main.html">
-                    <img src="../img/logo.svg" alt="logo" class="header__header-logo">
-                </a>
-                <nav class="header__nav">
-                    <div class="header__burger" id="open_burger">
-                        <img src="../img/burger.svg" alt="burger">
+        <div class="header__block">
+            <a href="../../main.html" class="header__click">
+                <img src="../img/white logo.svg" alt="logo" class="header__header-logo">
+            </a>
+            <nav class="header__nav">
+                <img src="../img/burger.svg" alt="burger" class="header__burger" id="open_burger">
+                <ul class="header__ul">
+                    <a href="../../main.html"><li class="header__li">ГЛАВНАЯ</li></a>
+                    <a href="./contact.html"><li class="header__li">КОНТАКТЫ</li></a>
+                </ul>
+                <div class="modal" id="modal_burger">
+                    <div class="modal__window">     
+                        <p class="modal__burger" id="burger_close">&#10006;</p>
+                        <ul class="modal__ul">
+                            <p class="modal__title">НАВИГАЦИЯ</p>
+                            <a href="../../main.html"><li class="modal__li">ГЛАВНАЯ</li></a>
+                            <a href="./contact.html"><li class="modal__li">КОНТАКТЫ</li></a>
+                        </ul>
                     </div>
-                    <ul class="header__ul">
-                        <a href="../main.html"><li class="header__li">ГЛАВНАЯ</li></a>
-                        <a href="./contact.html"><li class="header__li">КОНТАКТЫ</li></a>
-                    </ul>
-                    <div class="modal" id="modal_burger">
-                        <div class="modal__window">     
-                            <p class="modal__burger" id="burger_close">&#10006;</p>
-                            <ul class="modal__ul">
-                                <p class="modal__title">НАВИГАЦИЯ</p>
-                                <a href="../../main.html"><li class="modal__li">ГЛАВНАЯ</li></a>
-                                <a href="./contact.html"><li class="modal__li">КОНТАКТЫ</li></a>
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-            </div>
+                </div>
+            </nav>
         </div>
+        <progress value="0" max="100" class="header__read-bar"></progress>
     </header>
 
 
 
     <section class="second">
+        <p class="second__back buttons_slider">&larr;</p>
         <div class="container" id="secondContainer">
             <div class="second__functional">
                 <div class="second__functional-header">
                     <div class="second__functional-search">
-                        <input type="text" class="second__functional-input" id="search" placeholder="Поиск" onkeyup="search()">
+                        <input type="text" class="second__functional-input" id="search" placeholder="Поиск">
                         <p class="second__functional-clear">&#10006;</p>
                     </div>
                     <img src="../img/sort.svg" alt="img" class="second__functional-sort">
@@ -53,19 +51,16 @@
                     <p class="second__functional-title">Сортировка</p>
                     <div class="second__functional-sorting">
                         <div class="second__functional-sorting_1">
-                            <p class="second__functional-sorting_close second__functional-sorting_close1">&#10006;</p>
                             <input type="checkbox" class="second__functional-sortcb">
-                            <p class="second__functional-text">Популярность</p>
+                            <p class="second__functional-text second__functional-text1">Популярность</p>
                         </div>
                         <div class="second__functional-sorting_2">
-                            <p class="second__functional-sorting_close second__functional-sorting_close2">&#10006;</p>
                             <input type="checkbox" class="second__functional-sortcb">
-                            <p class="second__functional-text">От А до Я</p>
+                            <p class="second__functional-text second__functional-text2">От А до Я</p>
                         </div>
                         <div class="second__functional-sorting_3">
-                            <p class="second__functional-sorting_close second__functional-sorting_close3">&#10006;</p>
                             <input type="checkbox" class="second__functional-sortcb">
-                            <p class="second__functional-text">От Я до А</p>
+                            <p class="second__functional-text second__functional-text3">От Я до А</p>
                         </div>
                     </div>
                     <p class="second__functional-title">Фильтрация</p>
@@ -73,14 +68,12 @@
                     </div>
                 </div>
             </div>
-
-            <span class="second__loader" id="loading-indicator"></span>
-
             <div class="second__page" id="page"></div>
             <div class="details" class="hidden"></div>
             <p class="second__search-notfound"></p>
-            <div class="second__pagination"></div>
+            <span class="second__loader" id="loading-indicator"></span>
         </div>
+        <!-- <p class="second__next buttons_slider">next</p> -->
     </section>
     <footer class="footer">
         <div class="container">
@@ -98,7 +91,7 @@
             </div>
         </div>
     </footer>
-    <script src="../js/page2.js"></script>
+    <script type="module" src="../js/page2.js"></script>
 </body>
 </html>
 

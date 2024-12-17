@@ -8,21 +8,21 @@
     <link rel="stylesheet" href="./src/styles/css/style.css">
 </head>
 <body>
-  <div class="main">
-    <div class="container">
-      <div class="main__header">
-        <nav class="main__nav">
-          <a href="#">
-            <img src="./src/img/white-logo.svg" alt="" class="main__nav-logo">
-          </a>
-          <div class="main__burger" id="open_burger" >
-            <img src="./src/img/burger.svg" alt="burger">
-          </div>
-          <ul class="main__ul">
-            <a href="./src/template/contact.html"><li class="main__li">КОНТАКТЫ</li></a>
-            <a href="./src/template/page2.html"><li class="main__li main__li-btn" >ЧТО ПОСЕТИТЬ</li></a>
-          </ul>
 
+
+  <div class="main">
+    <header class="header">
+      <div class="container">
+        <nav class="header__nav">
+          <img src="./src/img/new_logo.svg" alt="" class="header__nav-logo">
+          <div class="header__burger" id="open_burger" >
+            <img src="./src/img/white burger.svg" alt="burger">
+          </div>
+          <ul class="header__ul">
+            <a href="./src/template/contact.html"><li class="header__li">КОНТАКТЫ</li></a>
+            <a href="./src/template/page2.html"><li class="header__li header__li-btn" >ЧТО ПОСЕТИТЬ</li></a>
+          </ul>
+    
           <div class="modal" id="modal_burger">
             <div class="modal__window">     
                 <p class="modal__burger" id="burger_close">&#10006;</p>
@@ -35,6 +35,8 @@
           </div>
         </nav>
       </div>
+    </header>
+    <div class="container">
       <div class="main__title">Москва - столица Российской Федерации</div>
     </div>
   </div>
@@ -43,7 +45,7 @@
   <div class="second">
     <div class="container">
       <div class="second__title">О Москве</div>
-      <div class="second__wrap">
+      <div class="second__wrap animation">
         <div class="second__text">
           <div class="second__subtitle_one">Москва - столица России и крупнейший город страны. Это огромный мегаполис, который является историческим, политическим и духовным сердцем Российской Федерации. Москва - крупнейшая столица Европы, наполненная достопримечательностями, памятниками истории и культуры, а также музеями мирового уровня. Это город невероятной динамики и размеров, который невозможно объять за одну поездку. </div>
           <div class="second__subtitle_two">Москва - очаровательный современный город, имеющий огромное количество достопримечательностей и интересных мест: от древней крепости и грандиозных соборов до красивых парков и футуристических небоскребов. Столица России существует уже около девяти веков. На её улочках можно встретить старинные сакральные памятники и дворцы, которые соседствуют с монументальными зданиями советской архитектуры и ультрасовременными сооружениями. Но не только этим славится Москва. Столица имеет колоссальное количество театров, музеев, галерей, а также великолепных ресторанов, уютных кафе и модных клубов. Поэтому Москва способна надолго занять любого туриста. </div>
@@ -61,7 +63,7 @@
 
 
       <div class="third__card-wrapper">
-          <div class="third__slider">
+          <div class="third__slider animation">
             <a class="third__slider-previous third__slider-btn" onclick="previousSlide()" >&#10094;</a>
             <div class="third__slider-row">
               <a href="./src/template/page2.html" class="third__card-link"><img id="card1" src="./src/img/краснаяплощадь.png" alt="img" class="third__card-img"></a>
@@ -90,7 +92,7 @@
 <footer class="footer">
     <hr class="footer__line">
     <div class="footer_block">
-      <img src="./src/img/footer logo (1).svg" alt="logo" class="footer__logo">
+      <img src="./src/img/white footer.svg" alt="logo" class="footer__logo">
       <div class="footer__row">
         <p class="footer__text1">Россия, Москва, 117997, 
           <br>ул. Авиамоторная, 19

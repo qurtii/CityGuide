@@ -1,264 +1,414 @@
-async function fetchFilteredCards(filters) {
-    const url = new URL('https://672b185d976a834dd02595f5.mockapi.io/cards');
-    Object.keys(filters).forEach(key => {
-        if (filters[key]){
-            url.searchParams.append(key, filters[key]);
-        }
-    })
-
-    try {
-        const response = await fetch(url, {
-            method: "GET",
-            headers: { 'content-type': 'application/json' } 
-        })
-
-        if (!response.ok){
-            throw error = new Error('Ошибка при получении данных!');
-        }
-
-        cards = await response.json();
-        displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
-        setupPagination();
-        displayFilters(getType(cards));
-
-    } catch {
-        console.log('error: ' + error.message)
-    }
-}
-
-const filtersDiv = document.getElementById("filters");
-
-filtersDiv.addEventListener('change', (event) => {
-    const filters = {};
-
-    document.querySelectorAll('.second__functional-checkbox').forEach(input => {
-        if (input.checked) {
-            filters[input.id] = input.value;
-        }
-    });
-
-    fetchFilteredCards(filters);
-});
-
-
-function makeDiv(className) {
-    const div = document.createElement('div');
-    div.classList.add(className);
-    return div;
-}
-
-function makeInput(type, id, className) {
-    const input = document.createElement('input');
-    input.classList.add(className);
-    input.type = type;
-    input.id = id;
-    return input;
-}
-
-function makeP(className, text) {
-    const p = document.createElement('p');
-    p.classList.add(className);
-    p.innerText = text;
-    return p;
-}
-
-function makeCard(card) {
-    const itemCard = document.createElement('img');
-    itemCard.src = card.card;
-    itemCard.alt = card.name;
-    itemCard.id = card.name;
-    itemCard.onclick = () => openDetails(card.id);
-    itemCard.classList.add('second__card-img');
-    return itemCard;
-}
-
-function getType(data) {
-    return data.map(card => card.filter);
-}
-
-// пагинация
+// Глобальные переменные
 const itemsPerPage = 4;
 let page = 1;
 let cards = [];
 let isLoading = false;
+let hasMoreData = true;
+let currentSortBy = ''; 
+let currentOrder = ''; 
+let currentFilters = {}; 
+let activeFilters = []; 
 
-async function fetchPagination(Error) {
-    const url = new URL('https://672b185d976a834dd02595f5.mockapi.io/card');
-    url.searchParams.append('completed', false);
-    url.searchParams.append('page', 1);
-    url.searchParams.append('limit', 10);
 
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: {'content-type':'application/json'},
-    })
 
-    try {
-        if (!response.ok){
-            return
+
+class CardManager {
+    constructor() {
+        this.itemsPerPage = 4;
+        this.page = 1;
+        this.cards = [];
+    }
+
+    // Создание карточки
+    makeCard(card) {
+        const cardDiv = document.createElement('div');
+        cardDiv.style.cursor = 'pointer';
+        const cardImg = document.createElement('img');
+        cardImg.src = card.img;
+        cardImg.alt = card.name;
+        cardImg.id = card.name;
+        cardImg.classList.add('second__card-img');
+        const cardTitle = document.createElement('p');
+        cardTitle.textContent = card.name;
+        cardTitle.classList.add('second__card-title');
+        cardDiv.appendChild(cardImg);
+        cardDiv.appendChild(cardTitle);
+        cardDiv.onclick = () => openDetails(card.id);
+        return cardDiv;
+    }
+
+    // Отображение карточек
+    displayCards(cards) {
+        const cardsPage = document.querySelector('.second__page');
+        cardsPage.innerHTML = '';
+
+        const cardsUl = document.createElement('ul');
+        cardsUl.classList.add('second__card-list');
+
+        cards.forEach(card => {
+            cardsUl.appendChild(this.makeCard(card));
+        });
+
+        cardsPage.appendChild(cardsUl);
+    }
+
+    // Загрузка карточек
+    async fetchCards() {
+        try {
+            const response = await fetch('https://672b185d976a834dd02595f5.mockapi.io/cards');
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных!');
+            }
+            this.cards = await response.json();
+
+            this.displayCards(this.cards.slice((this.page - 1) * this.itemsPerPage, this.page * this.itemsPerPage));
+
+            filterManager.displayFilters(filterManager.getType(this.cards));
+        } catch (error) {
+            console.log('Ошибка при загрузке карточек: ' + error.message);
         }
+    }
+    async fetchCombinedCards(filters = {}, sortBy = '', order = '', searchValue = '') {
+        const url = new URL('https://672b185d976a834dd02595f5.mockapi.io/cards');
+    
 
-        cards = await response.json();
-        displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
-        setupPagination();
-        displayFilters(getType(cards));
-    } catch {
-        console.log('error: ' + Error.message)
+        Object.keys(filters).forEach(key => {
+            if (filters[key]) {
+                url.searchParams.append(key, filters[key]);
+            }
+        });
+
+        if (sortBy) {
+            url.searchParams.append('sortBy', sortBy);
+            url.searchParams.append('order', order);
+        }
+    
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: { 'content-type': 'application/json' }
+            });
+    
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных!');
+            }
+    
+            let cards = await response.json();
+    
+            // Применяем поиск
+            if (searchValue) {
+                cards = cards.filter(card =>
+                    card.name.toLowerCase().includes(searchValue.toLowerCase())
+                );
+            }
+    
+            this.displayCards(cards.slice((this.page - 1) * this.itemsPerPage, this.page * this.itemsPerPage));
+        } catch (error) {
+            console.log('Ошибка при загрузке данных: ' + error.message);
+        }
     }
 }
 
 
 
-async function fetchCards() {
-    try {
-        const response = await fetch('https://672b185d976a834dd02595f5.mockapi.io/cards');
+class FilterManager {
+    constructor() {
+        this.activeFilters = [];
+        this.filtersDiv = document.getElementById("filters");
+        this.currentFilters = {};
+    }
 
-        if (!response.ok) {
-            throw new Error('Ошибка при получении данных!');
+    makeDiv(className) {
+        const div = document.createElement('div');
+        div.classList.add(className);
+        return div;
+    }
+
+    makeInput(type, id, className) {
+        const input = document.createElement('input');
+        input.type = type;
+        input.id = id;
+        input.classList.add(className);
+        return input;
+    }
+
+    makeP(className, text) {
+        const p = document.createElement('p');
+        p.classList.add(className);
+        p.innerText = text;
+        return p;
+    }
+
+    getType(data) {
+        const filters = data.map(card => card.filter);
+        const uniqueFilters = filters.filter((filter, index, self) =>
+            index === self.findIndex(f => f.type === filter.type)
+        );
+        return uniqueFilters;
+    }
+
+    displayFilters(filters) {
+        this.filtersDiv.innerHTML = ''; 
+    
+        filters.forEach(filter => {
+            const filterElement = this.makeDiv("second__functional-filter");
+    
+            const input = this.makeInput('checkbox', filter.type, 'second__functional-checkbox');
+            input.addEventListener('change', () => {
+                if (input.checked) {
+                    this.activeFilters.push(filter.type);
+                } else {
+                    this.activeFilters = this.activeFilters.filter(f => f !== filter.type);
+                }
+                this.applyFilters(); 
+            });
+    
+            const p = this.makeP('second__functional-text', filter.text);
+    
+
+            filterElement.appendChild(input);
+            filterElement.appendChild(p);
+    
+
+            this.filtersDiv.appendChild(filterElement);
+        });
+    }
+
+    applyFilters() {
+        if (this.activeFilters.length === 0) {
+            cardManager.displayCards(cardManager.cards.slice(0, cardManager.itemsPerPage));
+        } else {
+            const filteredCards = cardManager.cards.filter(card =>
+                this.activeFilters.includes(card.filter.type)
+            );
+            cardManager.displayCards(filteredCards.slice(0, cardManager.itemsPerPage)); 
         }
+    }
 
-        cards = await response.json();
-        displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
-        setupPagination();
-        displayFilters(getType(cards));
-    } catch (error) {
-        console.log('error: ' + error.message);
+    async fetchFilteredCards(filters) {
+        const url = new URL('https://672b185d976a834dd02595f5.mockapi.io/cards');
+        Object.keys(filters).forEach(key => {
+            if (filters[key]) {
+                url.searchParams.append(key, filters[key]);
+            }
+        });
+    
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: { 'content-type': 'application/json' }
+            });
+    
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных!');
+            }
+    
+            const filteredCards = await response.json();
+            const cardManager = new CardManager();
+            cardManager.displayCards(filteredCards.slice((cardManager.page - 1) * cardManager.itemsPerPage, cardManager.page * cardManager.itemsPerPage));
+        } catch (error) {
+            console.log('Filters error: ' + error.message);
+        }
+    }
+
+    // Обработчик изменения фильтров
+    setupFilterListener() {
+        this.filtersDiv.addEventListener('change', (event) => {
+            this.currentFilters = {};
+    
+            document.querySelectorAll('.second__functional-checkbox').forEach(input => {
+                if (input.checked) {
+                    this.currentFilters[input.id] = input.value;
+                }
+            });
+    
+            history.pushState({ sortBy: currentSortBy, order: currentOrder, filters: this.currentFilters }, '');
+            this.fetchFilteredCards(this.currentFilters);
+        });
     }
 }
+
+class SortManager {
+    constructor() {
+        this.currentSortBy = '';
+        this.currentOrder = '';
+    }
+
+    async fetchSortedCards(sortBy, order) {
+        currentSortBy = sortBy;
+        currentOrder = order;
+
+        const url = new URL('https://672b185d976a834dd02595f5.mockapi.io/cards');
+        url.searchParams.append('sortBy', sortBy);
+        url.searchParams.append('order', order);
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных!');
+            }
+            const sortedCards = await response.json();
+            const cardManager = new CardManager();
+            cardManager.displayCards(sortedCards);
+        } catch (error) {
+            console.log('Ошибка при сортировке карточек: ' + error.message);
+        }
+    }
+}
+const sortManager = new SortManager();
+
+class SearchManager {
+    constructor() {
+        this.searchInput = document.getElementById('search');
+        this.searchNotFound = document.querySelector('.second__search-notfound');
+        this.searchClear = document.querySelector('.second__functional-clear');
+    }
+
+    debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            const context = this;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), wait);
+        }
+    }
+
+    setupSearch() {
+        this.searchInput.addEventListener('input', this.debounce(() => {
+            const searchValue = this.searchInput.value.toLowerCase().trim();
+            currentSearch = searchValue;
+
+            if (searchValue === '') {
+                cardManager.fetchCombinedCards(currentFilters, currentSortBy, currentOrder, '');
+            } else {
+                cardManager.fetchCombinedCards(currentFilters, currentSortBy, currentOrder, searchValue);
+            }
+        }, 300));
+    }
+}
+
+
+class PaginationManager {
+    constructor() {
+        this.isLoading = false;
+        this.hasMoreData = true;
+    }
+
+    // infinity scroll
+    async fetchMoreCards() {
+        if (this.isLoading || !this.hasMoreData) {
+            return;
+        }
+        this.isLoading = true;
+    
+        try {
+            const url = new URL('https://672b185d976a834dd02595f5.mockapi.io/cards');
+            url.searchParams.append('page', cardManager.page);
+            url.searchParams.append('limit', cardManager.itemsPerPage);
+    
+            if (currentSortBy) {
+                url.searchParams.append('sortBy', currentSortBy);
+                url.searchParams.append('order', currentOrder);
+            }
+            Object.keys(currentFilters).forEach(key => {
+                url.searchParams.append(key, currentFilters[key]);
+            });
+    
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: { 'content-type': 'application/json' },
+            });
+    
+            if (!response.ok) {
+                throw new Error('Ошибка при получении данных!');
+            }
+    
+            const newCards = await response.json();
+    
+            if (newCards.length === 0) {
+                this.hasMoreData = false;
+                return;
+            }
+    
+            cardManager.cards = cardManager.cards.concat(newCards);
+            cardManager.displayCards(cardManager.cards.slice(0, cardManager.page * cardManager.itemsPerPage));
+            cardManager.page++;
+    
+        } catch (error) {
+            console.log('Ошибка при загрузке дополнительных карточек: ' + error.message);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+    setupScrollListener() {
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+                this.fetchMoreCards();
+            }
+        });
+    }
+}
+
+
+function resetFilters() {
+    activeFilters = []; 
+    document.querySelectorAll('.second__functional-checkbox').forEach(input => {
+        input.checked = false; 
+    });
+}
+
+
 
 const cardsPage = document.querySelector('.second__page');
 
 
-function displayCards(cards) {
-    cardsPage.innerHTML = '';
+// Обработчики для сортировки
 
-    const cardsUl = document.createElement('ul');
-    cardsUl.classList.add('second__card-list');
-
-    cards.forEach(card => {
-        cardsUl.appendChild(makeCard(card));
-    });
-
-    cardsPage.appendChild(cardsUl);
-}
-
-const uniqueFilters = new Set();
-
-function displayFilters(filters) {
-
-    filters.forEach(filter => {
-        const filterElement = makeDiv("second__functional-filter");
-
-        const input = makeInput('checkbox', 'firstCheckbox', 'second__functional-checkbox');
-        const p = makeP('second__functional-text', filter.text);
-
-        if (uniqueFilters.has(filter.type)) {
-            return;
-        } else {
-            uniqueFilters.add(filter.type);
-        }
-
-        filterElement.appendChild(input);
-        filterElement.appendChild(p);
-
-        input.addEventListener('change', function () {
-            if (input.checked) {
-                const firstTargetCards = cards.filter(item1 => item1.filter.type.toLowerCase() === filter.type.toLowerCase());
-                if (firstTargetCards.length > 0) {
-                    paginBtn.style.display = 'none';
-                    displayCards(firstTargetCards);
-                } else {
-                    console.log('Карточек для чекбокса не найдено!');
-                }
-            } else {
-                paginBtn.style.display = 'flex';
-                displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
-                displayFilters(getType(cards));
-            }
-        });
-
-        filtersDiv.appendChild(filterElement);
-    });
-}
-
-const paginBtn = document.querySelector('.second__pagination');
-function setupPagination() {
-    const totalPages = Math.ceil(cards.length / itemsPerPage);
-
-    paginBtn.innerHTML = '';
-    if (totalPages > 1) {
-        for (let i = 1; i <= totalPages; i++) {
-            const pageButton = document.createElement('button');
-            pageButton.className = 'second__pagination-link';
-            pageButton.textContent = i;
-            pageButton.addEventListener('click', () => {
-                page = i;
-                displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
-            });
-            paginBtn.appendChild(pageButton);
-        }
+const firstText = document.querySelector('.second__functional-text1');
+document.querySelector('.second__functional-sorting_1').addEventListener('click', () => {
+    if (firstText.classList.contains('active')) {
+        firstText.classList.remove('active');
+        cardManager.fetchCards(); 
+        resetFilters(); 
     } else {
-        paginBtn.style.display = 'none';
+        firstText.classList.add('active');
+        sortManager.fetchSortedCards('popularity', 'desc');
+        secondText.classList.remove('active');
+        thirdText.classList.remove('active');
     }
-}
-
-fetchCards();
-
-// Функция поиска
-const searchInput = document.getElementById('search');
-const searchNotFound = document.querySelector('.second__search-notfound');
-const searchClear = document.querySelector('.second__functional-clear');
-
-searchInput.addEventListener('input', () => {
-    const searchValue = searchInput.value.toLowerCase();
-    searchClear.style.display = searchValue.trim() === '' ? 'none' : 'block';
-    let filteredCards;
-    // убирает пробелы 
-    if (searchValue === '') { // Если поле поиска пустое, возвращаем все карточки
-        filteredCards = displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
-        searchNotFound.textContent = '';
-    } else {
-        filteredCards = cards.filter(e =>
-            e.name.toLowerCase().includes(searchValue)
-        );
-
-        if (filteredCards.length > 0) {
-            searchNotFound.textContent = '';
-        } else {
-            searchNotFound.textContent = 'Ничего не найдено :(';
-        }
-    }
-
-    searchClear.onclick = function () {
-        searchInput.value = '';
-        searchNotFound.textContent = '';
-        displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
-        searchClear.style.display = 'none';
-    };
-
-    displayCards(filteredCards);
-    setupPagination(filteredCards);
 });
 
-// OPEN BURGER MENU
-const burgerOpenMenu = document.querySelector('.header__burger');
-const burgerMenu = document.getElementById('modal_burger');
-const burgerCloseMenu = document.getElementById('burger_close');
 
-function openBurgerMenu() {
-    burgerMenu.style.display = 'flex';
-    burgerOpenMenu.style.display = 'none';
-}
+const secondText = document.querySelector('.second__functional-text2');
+document.querySelector('.second__functional-sorting_2').addEventListener('click', () => {
+    if (secondText.classList.contains('active')) {
+        secondText.classList.remove('active');
+        cardManager.fetchCards(); 
+        resetFilters(); 
+    } else {
+        secondText.classList.add('active');
+        sortManager.fetchSortedCards('name', 'asc');
+        firstText.classList.remove('active');
+        thirdText.classList.remove('active');
+    }
+});
 
-function closeBurgerMenu() {
-    burgerMenu.style.display = 'none';
-    burgerOpenMenu.style.display = 'flex';
-}
+const thirdText = document.querySelector('.second__functional-text3');
+document.querySelector('.second__functional-sorting_3').addEventListener('click', () => {
+    if (thirdText.classList.contains('active')) {
+        thirdText.classList.remove('active');
+        currentSortBy = 'UniqNum';
+        currentOrder = 'desc';
+        cardManager.fetchCards(); 
+        resetFilters(); 
+    } else {
+        thirdText.classList.add('active');
+        sortManager.fetchSortedCards('name', 'desc');
+        firstText.classList.remove('active');
+        secondText.classList.remove('active');
+    }
+});
 
-burgerOpenMenu.onclick = openBurgerMenu;
-burgerCloseMenu.onclick = closeBurgerMenu;
-
-// открытие настроек
 const sortOptions = document.querySelector('.second__functional-sort');
 const optionsList = document.querySelector('.second__functional-list');
 
@@ -268,153 +418,147 @@ sortOptions.onclick = function () {
         : (optionsList.classList.remove('second__functional-list-open'), optionsList.classList.add('second__functional-list-close'));
 };
 
-async function fetchSortedCards(sortBy, order = 'asc') {
-    const url = new URL('https://672b185d976a834dd02595f5.mockapi.io/cards');
-    url.searchParams.append('sortBy', sortBy);
-    url.searchParams.append('order', order);
 
-    try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: { 'content-type': 'application/json' },
-        });
 
-        if (!response.ok) {
-            throw new Error('Ошибка при получении данных!');
-        }
-        cards = await response.json();
-        console.log(cards)
-        displayCards(cards.slice((page - 1) * itemsPerPage, page * itemsPerPage));
-        setupPagination();
-        displayFilters(getType(cards));
-    } catch (error) {
-        console.log('error: ' + error.message);
+
+class DetailsManager {
+    constructor() {
+        this.detailsDiv = document.querySelector('.details');
+        this.functional = document.querySelector('.second__functional');
+        this.readBar = document.querySelector('.header__read-bar');
+        this.cardsPage = document.querySelector('.second__page');
     }
-}
 
-// сортировка
-const firstSortingDiv = document.querySelector('.second__functional-sorting_1');
-const firstSortingClose = document.querySelector('.second__functional-sorting_close1');
+    // Отображение деталей карточки
+    async showDetails(sightId) {
+        const sights = await fetchSights();
+        const sight = sights.find(a => a.id === sightId);
+        if (sight) {
+            sight.count += 1;
 
-firstSortingDiv.onclick = function () {
-    firstSortingClose.style.display === "block" ? 
-        (secondSortingDiv.style.display = 'flex', thirdSortingDiv.style.display = 'flex', firstSortingClose.style.display = 'none', fetchSortedCards('-UniqNum', 'asc')) :
-        (firstSortingClose.style.display = 'block', secondSortingDiv.style.display = 'none', thirdSortingDiv.style.display = 'none', fetchSortedCards('popularity', 'desc'));
-};
+            this.currentSight = sight;
+            try {
+                const response = await fetch(`https://672b185d976a834dd02595f5.mockapi.io/cards/${sightId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(sight)
+                });
 
-const secondSortingDiv = document.querySelector('.second__functional-sorting_2');
-const secondSortingClose = document.querySelector('.second__functional-sorting_close2');
-secondSortingDiv.onclick = function () {
-    const isOpenSecond = secondSortingClose.style.display === "block";
+                if (!response.ok) {
+                    throw new Error('Ошибка при обновлении данных на сервере');
+                }
 
-    firstSortingDiv.style.display = isOpenSecond ? 'flex' : 'none';
-    thirdSortingDiv.style.display = isOpenSecond ? 'flex' : 'none';
-    secondSortingClose.style.display = isOpenSecond ? 'none' : 'block';
+                console.log('Данные успешно обновлены на сервере');
+            } catch (error) {
+                console.error('Ошибка при обновлении данных:', error);
+            }
 
-    fetchSortedCards(isOpenSecond ? '-UniqNum' : 'name', 'asc');
-};
+            // Обновляем URL
+            history.pushState({ id: sightId }, '', `/id/${sightId}`);
+            window.addEventListener('scroll', () => pageManager.recalculateProgress());
+            window.addEventListener('resize', () => pageManager.recalculateProgress());
+            this.updatePageLayout('details');
 
-const thirdSortingDiv = document.querySelector('.second__functional-sorting_3');
-const thirdSortingClose = document.querySelector('.second__functional-sorting_close3');
-
-thirdSortingDiv.onclick = function () {
-    const isOpenThird = thirdSortingClose.style.display === "block";
-
-    secondSortingDiv.style.display = isOpenThird ? 'flex' : 'none';
-    firstSortingDiv.style.display = isOpenThird ? 'flex' : 'none';
-    thirdSortingClose.style.display = isOpenThird ? 'none' : "block";
-
-    fetchSortedCards(isOpenThird ? '-UniqNum' : 'name', 'desc');
-};
-
-
-const functional = document.querySelector('.second__functional-header');
-function openDetails(id) {
-    window.location.href = `?id=${id}`;
-}
-
-async function fetchSights() {
-    const response = await fetch("https://672b185d976a834dd02595f5.mockapi.io/cards");
-    return response.json();
-}
-
-const secondPage = document.querySelector('.second')
-
-function renderSights(sights) {
-    sights.forEach(sight => {
-        const attrDiv = document.createElement('div');
-        attrDiv.classList.add("details__card");
-
-        cardsPage.appendChild(attrDiv);
-    });
-}
-
-async function showDetails(sightId) {
-    const sights = await fetchSights();
-    const sight = sights.find(a => a.id === sightId);
-    if (sight) {
-        cardsPage.style.display = 'none';
-        functional.style.display = 'none';
-        paginBtn.style.display = 'none';
-
-        const detailsDiv = document.querySelector('.details');
-        detailsDiv.innerHTML = `
-            <div class='details__images-wrapper'> 
-                <div class='details__images'> 
-                    <p class='details__slider-btn details__previus' id='back'> &larr; </p>
-                    <img class ='details__slider-img' src='${sight.images[0]}' alt='img'>
-                    <p class='details__slider-btn details__next' id='next'> &rarr; </p>
-                </div>
-            </div>
-            <a href="#" onclick="history.back()"> ← Назад </a>
-            <div class="details__block">            
-                <h1>${sight.name}</h1>
-                <div class='details__details-part'>
-                    <p class="details__text">${sight.About[0]}</p>
-                    <img src="${sight.images[0]}" alt="Image" onclick='openImagesSlider()' class="details__img">
-                </div>
-                <div class='details__details-part adaptiv'>
-                    <img src="${sight.images[1]}" onclick='openImagesSlider()' alt="Image">
-                    <p class="details__text">${sight.About[1]}</p>
-                </div>
-                <h2>Достопримечательность на карте</h2>
-                <iframe src="${sight.Map}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                
-
-
-                <h2>Отзывы</h2>
-                <div class='details__createComment' id='createComment'> 
-                    <form class='details__inputs'>
-                        <input minlength='2' maxlength="33" placeholder='Ваше имя' class='details__nameInput' id="reviewName" required>
-                        <textarea maxlength="650" placeholder='Введите сообщение' class='details__textInput' id="reviewText" required></textarea>
-                    </form>
-                    <div class='details__hr' id='detailsHr'> </div>
-                    <div class='details__buttons'>
-                        <button class='details__btn' id='cancelReview'> Отмена </button>
-                        <button class='details__btn' type="submit" id="submitReview"> Оставить комментарий </button>
+            this.detailsDiv.innerHTML = `
+                <div class='details__images-wrapper'> 
+                    <div class='details__images'> 
+                        <p class='details__slider-btn details__previus' id='back'> &larr; </p>
+                        <img class ='details__slider-img' src='${sight.images[0]}' alt='img'>
+                        <p class='details__slider-btn details__next' id='next'> &rarr; </p>
                     </div>
                 </div>
-                <div class='details__allComments'></div>
-            </div>
-        `;
 
+                <div class="details__header">
+                    <a href="#" class='details__back-btn'> ← Назад </a>
+                    <div class="details__header_reviews">
+                        <img src="${sight.icon}" alt="image" class="details__header_reviews-img">
+                        <p class="details__header_reviews-count">${sight.count }</p>
+                    </div>
+                </div>
+                <div class="details__block">            
+                    <h1>${sight.name}</h1>
+                    <div class='details__details-part'>
+                        <p class="details__text">${sight.About[0]}</p>
+                        <img src="${sight.images[0]}" alt="Image" onclick='openImagesSlider()' class="details__img" data-id="${sight.id}">
+                    </div>
+                    <div class='details__details-part adaptiv'>
+                        <img src="${sight.images[1]}" onclick='openImagesSlider()' alt="Image" class="details__img" data-id="${sight.id}">
+                        <p class="details__text">${sight.About[1]}</p>
+                    </div>
+                    <h2>Достопримечательность на карте</h2>
+                    <iframe src="${sight.Map}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    
+                    <h2>Отзывы</h2>
+                    <div class='details__createComment' id='createComment' data-id="${sight.id}"> 
+                        <form class='details__inputs'>
+                            <input minlength='2' maxlength="33" placeholder='Ваше имя' class='details__nameInput' id="reviewName" required>
+                            <textarea maxlength="650" placeholder='Введите сообщение' class='details__textInput' id="reviewText" required></textarea>
+                        </form>
+                        <div class='details__hr' id='detailsHr'> </div>
+                        <div class='details__buttons'>
+                            <button class='details__btn' id='cancelReview'> Отмена </button>
+                            <button class='details__btn' type="submit" id="submitReview"> Оставить комментарий </button>
+                        </div>
+                    </div>
+                    <div class='details__allComments'></div>
+            `;
 
-        document.querySelector('.details__inputs').addEventListener('click', function(){
-            // hr
-            document.querySelector("#detailsHr").classList.add('active')
+            this.setupDetailsListeners();
+            this.loadReviews(sight.id);
+        }        
+    }
+
+    // Загрузка отзывов
+    loadReviews(attractionId) {
+        fetch(`https://672b185d976a834dd02595f5.mockapi.io/cards/${attractionId}`)
+            .then(response => response.json())
+            .then(data => {
+                const reviewsContainer = document.querySelector('.details__allComments');
+                reviewsContainer.innerHTML = '';
+    
+                if (data.reviews) {
+                    data.reviews.forEach(review => {
+                        const reviewElement = document.createElement('div');
+                        reviewElement.classList.add('details__comment');
+                        reviewElement.innerHTML = `
+                            <img src="https://live.staticflickr.com/65535/54192929955_ce85969884_o.png" alt="avatar" class='details__comment-img'>
+                            <div class='details__comment-info'> 
+                                <div class='details__comment-header'>
+                                    <div class='details__comment-name'>${review.name}</div>
+                                    <div class='details__comment-date'>${new Date(review.createdAt).toLocaleString('ru-RU', options)}</div>
+                                </div>
+                                <div class='details__comment-text'>${review.text}</div>
+                            </div>
+                        `;
+                        reviewsContainer.appendChild(reviewElement);
+                    });
+                } else {
+                    reviewsContainer.innerHTML = '<p>Пока нет отзывов.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке отзывов:', error);
+            });
+    }
+    
+    setupDetailsListeners() {
+        document.querySelector('.details__inputs').addEventListener('click', () => {
+            document.querySelector("#detailsHr").classList.add('active');
             document.querySelector('.details__buttons').style.display = 'flex';
-        })
-
-        document.getElementById('cancelReview').addEventListener('click', function(){
+        });
+    
+        document.getElementById('cancelReview').addEventListener('click', () => {
             document.querySelector('.details__inputs').reset();
             document.querySelector('.details__buttons').style.display = 'none';
-            document.querySelector("#detailsHr").classList.remove('active')
-        })
-
-        document.getElementById('reviewText').addEventListener('input', function() {
+            document.querySelector("#detailsHr").classList.remove('active');
+        });
+    
+        document.getElementById('reviewText').addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = this.scrollHeight + 'px';
-        
+    
             if (document.getElementById('reviewText').value.length > 0) {
                 document.getElementById('submitReview').classList.add('active');
             } else {
@@ -422,152 +566,291 @@ async function showDetails(sightId) {
             }
         });
 
-        detailsDiv.classList.remove('hidden');
 
-
-        loadReviews(sight.id);
-
-
-        document.getElementById('submitReview').addEventListener('click', function(event) {
+        document.getElementById('submitReview').addEventListener('click', async (event) => {
             event.preventDefault();
-
-            const attractionId = sight.id;
+    
+            const attractionId = this.currentSight.id;
             const reviewName = document.getElementById('reviewName').value;
             const reviewText = document.getElementById('reviewText').value;
-
-            const reviewData = {
-                name: reviewName,
-                text: reviewText,
-                createdAt: new Date().toISOString()
-            };
-
-            fetch(`https://672b185d976a834dd02595f5.mockapi.io/cards/${attractionId}`, {
-                method: 'GET'
-            })
-            .then(response => response.json())
-            .then(data => {
+    
+            try {
+                const response = await fetch(`https://672b185d976a834dd02595f5.mockapi.io/cards/${attractionId}`, {
+                    method: 'GET'
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Ошибка при загрузке данных достопримечательности');
+                }
+    
+                const data = await response.json();
+    
                 if (!data.reviews) {
                     data.reviews = [];
                 }
-                data.reviews.push(reviewData);
-
-                return fetch(`https://672b185d976a834dd02595f5.mockapi.io/cards/${attractionId}`, {
+                data.reviews.push({
+                    id: new Date().getTime(), 
+                    name: reviewName,
+                    text: reviewText,
+                    createdAt: new Date().toISOString(),
+                });
+    
+                const putResponse = await fetch(`https://672b185d976a834dd02595f5.mockapi.io/cards/${attractionId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(data)
                 });
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Отзыв успешно добавлен:', data);
-                loadReviews(attractionId); 
+    
+                if (!putResponse.ok) {
+                    throw new Error('Ошибка при отправке отзыва');
+                }
+    
                 document.querySelector('.details__inputs').reset();
                 document.querySelector('.details__buttons').style.display = 'none';
-                document.querySelector("#detailsHr").classList.remove('active')
+                document.querySelector("#detailsHr").classList.remove('active');
                 document.getElementById('submitReview').classList.remove('active');
-                
-            })
-            .catch(error => {
+    
+                // Обновляем отзывы
+                this.loadReviews(attractionId);
+    
+                console.log('Отзыв успешно добавлен');
+            } catch (error) {
                 console.error('Ошибка при добавлении отзыва:', error);
+            }
+        });
+    }
+    // Обновление макета страницы
+    updatePageLayout(type) {
+        if (type === 'list') {
+            this.cardsPage.style.display = 'block';
+            this.functional.style.display = 'flex';
+            this.readBar.style.display = 'none';
+            this.detailsDiv.style.display = 'none';
+        } else if (type === 'details') {
+            this.cardsPage.style.display = 'none';
+            this.functional.style.display = 'none';
+            this.readBar.style.display = 'block';
+            this.detailsDiv.style.display = 'block';
+        }
+    }
+        // Открытие слайдера изображений
+    openImagesSlider(sight) {
+        if (!sight) {
+            console.error('Переменная sight не определена');
+            return;
+        }
+        const imagesSlider = document.querySelector('.details__images-wrapper');
+        if (imagesSlider) {
+            imagesSlider.style.display = 'flex';
+            document.body.style.overflowY = 'hidden';
+            document.body.style.overflowX = 'hidden';
+
+            imagesSlider.addEventListener('click', function (event) {
+                if (event.target === imagesSlider) {
+                    imagesSlider.style.display = 'none';
+                    document.body.style.overflowY = 'auto';
+                }
             });
-        });
-    }
-}
 
-window.onload = async () => {
-    const sights = await fetchSights();
-    renderSights(sights);
-
-    const params = new URLSearchParams(window.location.search);
-    const sightId = params.get('id');
-    if (sightId) {
-        showDetails(sightId);
-    }
-};
-
-
-function loadReviews(attractionId) {
-    fetch(`https://672b185d976a834dd02595f5.mockapi.io/cards/${attractionId}`)
-        .then(response => response.json())
-        .then(data => {
-            const reviewsContainer = document.querySelector('.details__allComments');
-            reviewsContainer.innerHTML = ''; 
-
-            if (data.reviews) {
-                data.reviews.forEach(review => {
-                    const reviewElement = document.createElement('div');
-                    reviewElement.classList.add('details__comment');
-                    reviewElement.innerHTML = `
-                    <img src="https://live.staticflickr.com/65535/54192929955_ce85969884_o.png" alt="avatar" class='details__comment-img'>
-                    <div class='details__comment-info'> 
-                        <div class='details__comment-header'>
-                            <div class='details__comment-name'>${review.name}</div>
-                            <div class='details__comment-date'>${new Date(review.createdAt).toLocaleString('ru-RU', options)}</div>
-                        </div>
-                            <div class='details__comment-text' >${review.text}</div>
-                    </div>
-                    `;
-                    reviewsContainer.appendChild(reviewElement);
-                });
-            } else {
-                reviewsContainer.innerHTML = '<p>Пока нет отзывов.</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка при загрузке отзывов:', error);
-        });
-}
-
-let options =  { 
-    year: '2-digit', 
-    month: 'numeric', 
-    day: 'numeric', 
-    hour: 'numeric', 
-    minute: 'numeric' 
-}
-
-const body = document.body
-function openImagesSlider(sight) {
-    const imagesSlider = document.querySelector('.details__images-wrapper');
-    if (imagesSlider) {
-        imagesSlider.style.display = 'flex'; 
-        body.style.overflowY = 'hidden'; 
-
-
-        imagesSlider.addEventListener('click', function (event) {
-            if (event.target === imagesSlider) {
-                imagesSlider.style.display = 'none'; 
-                body.style.overflowY = 'auto'; 
-            }
-        });
-
-        const sliderNext = imagesSlider.querySelector('#next');
-        const sliderPrev = imagesSlider.querySelector('#back');
-        if (sliderNext && sliderPrev) {
+            const sliderNext = imagesSlider.querySelector('#next');
+            const sliderPrev = imagesSlider.querySelector('#back');
             let currentImageIndex = 0;
 
-            sliderNext.addEventListener('click', function () {
+            function updateImage() {
                 const imgElement = imagesSlider.querySelector('.details__slider-img');
-
-                currentImageIndex = (currentImageIndex + 1) % sight.images.length;
-
                 imgElement.src = sight.images[currentImageIndex];
+            }
+
+            sliderNext.addEventListener('click', function () {
+                currentImageIndex = (currentImageIndex + 1) % sight.images.length;
+                updateImage();
             });
 
             sliderPrev.addEventListener('click', function () {
-                const imgElement = imagesSlider.querySelector('.details__slider-img');
-
-
-                currentImageIndex = (currentImageIndex + 1 + sight.images.length) % sight.images.length;
-                imgElement.src = sight.images[currentImageIndex];
+                currentImageIndex = (currentImageIndex - 1 + sight.images.length) % sight.images.length;
+                updateImage();
             });
         } else {
-            console.error('Элементы #next или #back не найдены');
+            console.error('Элемент .details__images-wrapper не найден');
         }
-    } else {
-        console.error('Элемент .details__images-wrapper не найден');
     }
+}
+class PageManager {
+    constructor() {
+        this.functional = document.querySelector('.second__functional');
+        this.readBar = document.querySelector('.header__read-bar');
+        this.detailsDiv = document.querySelector('.details');
+        this.cardsPage = document.querySelector('.second__page');
+    }
+
+
+    setupPopstateListener() {
+        window.addEventListener('popstate', (event) => {
+            const state = event.state;
+            if (state && state.id) {
+                detailsManager.showDetails(state.id);
+            } else {
+                cardManager.fetchCards();
+            }
+        });
+        
+    }
+
+    updatePageContent(state) {
+        if (state && state.id) {
+            detailsManager.showDetails(state.id); 
+        } else {
+            fetchCards(); 
+            this.updatePageLayout('list');
+        }
+    }
+
+
+    updatePageLayout(type) {
+        if (type === 'list') {
+            this.cardsPage.style.display = 'block';
+            this.functional.style.display = 'flex';
+            this.readBar.style.display = 'none';
+            this.detailsDiv.style.display = 'none';
+        } else if (type === 'details') {
+            this.cardsPage.style.display = 'none';
+            this.functional.style.display = 'none';
+            this.readBar.style.display = 'block';
+            this.detailsDiv.style.display = 'block';
+        }
+    }
+
+
+    async initialize() {
+        const state = history.state;
+        if (state && state.id) {
+            detailsManager.showDetails(state.id);
+        } else {
+            currentSortBy = state?.sortBy || '';
+            currentOrder = state?.order || '';
+            currentFilters = state?.filters || {};
+            const searchValue = state?.search || '';
+
+            await cardManager.fetchCombinedCards(currentFilters, currentSortBy, currentOrder, searchValue);
+            this.updatePageLayout('list');
+        }
+    }
+
+
+    async fetchSights() {
+        try {
+            const response = await fetch("https://672b185d976a834dd02595f5.mockapi.io/cards");
+            if (!response.ok) {
+                throw new Error('Ошибка при загрузке данных');
+            }
+            return response.json();
+        } catch (error) {
+            console.error('Ошибка при загрузке достопримечательностей:', error);
+            return [];
+        }
+    }
+
+ 
+    renderSights(sights) {
+        sights.forEach(sight => {
+            const attrDiv = document.createElement('div');
+            attrDiv.classList.add("details__card");
+            this.cardsPage.appendChild(attrDiv);
+        });
+    }
+
+
+    recalculateProgress() {
+        const viewportHeight = window.innerHeight; 
+        const pageHeight = document.body.offsetHeight;  
+        const currentPosition = window.scrollY;  
+        const availableHeight = pageHeight - viewportHeight;
+        const percent = (currentPosition / availableHeight) * 100;
+        this.readBar.value = percent;
+    }
+
+}
+
+
+const cardManager = new CardManager();
+const searchManager = new SearchManager();
+const paginationManager = new PaginationManager();
+const pageManager = new PageManager();
+const detailsManager = new DetailsManager();
+
+
+cardManager.fetchCards();
+
+
+searchManager.setupSearch();
+
+
+paginationManager.setupScrollListener();
+pageManager.setupPopstateListener();
+pageManager.initialize();
+
+const filterManager = new FilterManager();
+
+// Отображение фильтров
+filterManager.displayFilters(filterManager.getType(cardManager.cards));
+
+function openDetails(id) {
+    history.pushState({ id }, '', `/id/${id}`);
+    detailsManager.showDetails(id);
+}
+
+async function fetchSights() {
+    try {
+        const response = await fetch("https://672b185d976a834dd02595f5.mockapi.io/cards");
+        if (!response.ok) {
+            throw new Error('Ошибка при загрузке данных');
+        }
+        return response.json();
+    } catch (error) {
+        console.error('Ошибка при загрузке достопримечательностей:', error);
+        return [];
+    }
+}
+
+
+let options = {
+    year: '2-digit',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric'
+};
+
+function getCurrentPage() {
+    const path = window.location.pathname;
+
+    if (path.startsWith('/id/')) {
+        const id = path.split('/')[2]; 
+        return { type: 'details', id };
+    } else {
+        return { type: 'list' }; 
+    }
+}
+
+function renderPage() {
+    const page = getCurrentPage();
+
+    if (page.type === 'details') {
+        detailsManager.showDetails(page.id);
+    } else if (page.type === 'list') {
+
+        cardManager.fetchCards();
+    }
+}
+
+
+window.addEventListener('load', renderPage);
+window.addEventListener('popstate', renderPage);
+
+
+function btnBack() {
+    history.back();
 }
 
