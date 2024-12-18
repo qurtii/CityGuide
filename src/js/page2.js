@@ -40,16 +40,22 @@ class CardManager {
     // Отображение карточек
     displayCards(cards) {
         const cardsPage = document.querySelector('.second__page');
-        cardsPage.innerHTML = '';
-
-        const cardsUl = document.createElement('ul');
-        cardsUl.classList.add('second__card-list');
-
-        cards.forEach(card => {
-            cardsUl.appendChild(this.makeCard(card));
-        });
-
-        cardsPage.appendChild(cardsUl);
+    
+        if (cards.length > 0) {
+            cardsPage.style.display = 'block'; 
+            cardsPage.innerHTML = '';
+    
+            const cardsUl = document.createElement('ul');
+            cardsUl.classList.add('second__card-list');
+    
+            cards.forEach(card => {
+                cardsUl.appendChild(this.makeCard(card));
+            });
+    
+            cardsPage.appendChild(cardsUl);
+        } else {
+            cardsPage.style.display = 'none';
+        }
     }
 
     // Загрузка карточек
@@ -71,16 +77,19 @@ class CardManager {
     async fetchCombinedCards(filters = {}, sortBy = '', order = '', searchValue = '') {
         const url = new URL('https://672b185d976a834dd02595f5.mockapi.io/cards');
     
-
         Object.keys(filters).forEach(key => {
             if (filters[key]) {
                 url.searchParams.append(key, filters[key]);
             }
         });
-
+    
         if (sortBy) {
             url.searchParams.append('sortBy', sortBy);
             url.searchParams.append('order', order);
+        }
+
+        if (searchValue) {
+            url.searchParams.append('search', searchValue);
         }
     
         try {
@@ -94,13 +103,6 @@ class CardManager {
             }
     
             let cards = await response.json();
-    
-            // Применяем поиск
-            if (searchValue) {
-                cards = cards.filter(card =>
-                    card.name.toLowerCase().includes(searchValue.toLowerCase())
-                );
-            }
     
             this.displayCards(cards.slice((this.page - 1) * this.itemsPerPage, this.page * this.itemsPerPage));
         } catch (error) {
@@ -213,7 +215,7 @@ class FilterManager {
 
     // Обработчик изменения фильтров
     setupFilterListener() {
-        this.filtersDiv.addEventListener('change', (event) => {
+        filtersDiv.addEventListener('change', (event) => {
             this.currentFilters = {};
     
             document.querySelectorAll('.second__functional-checkbox').forEach(input => {
@@ -223,7 +225,7 @@ class FilterManager {
             });
     
             history.pushState({ sortBy: currentSortBy, order: currentOrder, filters: this.currentFilters }, '');
-            this.fetchFilteredCards(this.currentFilters);
+            fetchFilteredCards(this.currentFilters);
         });
     }
 }
@@ -256,11 +258,10 @@ class SortManager {
     }
 }
 const sortManager = new SortManager();
-
+let currentSearch = '';
 class SearchManager {
     constructor() {
         this.searchInput = document.getElementById('search');
-        this.searchNotFound = document.querySelector('.second__search-notfound');
         this.searchClear = document.querySelector('.second__functional-clear');
     }
 
@@ -272,18 +273,18 @@ class SearchManager {
             timeout = setTimeout(() => func.apply(context, args), wait);
         }
     }
-
     setupSearch() {
         this.searchInput.addEventListener('input', this.debounce(() => {
             const searchValue = this.searchInput.value.toLowerCase().trim();
-            currentSearch = searchValue;
-
+            cardManager.fetchCombinedCards(currentFilters, currentSortBy, currentOrder, searchValue);
+        }, 300));
+    
+        this.searchInput.addEventListener('blur', () => {
+            const searchValue = this.searchInput.value.toLowerCase().trim();
             if (searchValue === '') {
                 cardManager.fetchCombinedCards(currentFilters, currentSortBy, currentOrder, '');
-            } else {
-                cardManager.fetchCombinedCards(currentFilters, currentSortBy, currentOrder, searchValue);
             }
-        }, 300));
+        });
     }
 }
 
@@ -368,6 +369,8 @@ const firstText = document.querySelector('.second__functional-text1');
 document.querySelector('.second__functional-sorting_1').addEventListener('click', () => {
     if (firstText.classList.contains('active')) {
         firstText.classList.remove('active');
+        currentSortBy = '';
+        currentOrder = ''; 
         cardManager.fetchCards(); 
         resetFilters(); 
     } else {
@@ -378,11 +381,12 @@ document.querySelector('.second__functional-sorting_1').addEventListener('click'
     }
 });
 
-
 const secondText = document.querySelector('.second__functional-text2');
 document.querySelector('.second__functional-sorting_2').addEventListener('click', () => {
     if (secondText.classList.contains('active')) {
         secondText.classList.remove('active');
+        currentSortBy = '';
+        currentOrder = ''; 
         cardManager.fetchCards(); 
         resetFilters(); 
     } else {
@@ -397,8 +401,8 @@ const thirdText = document.querySelector('.second__functional-text3');
 document.querySelector('.second__functional-sorting_3').addEventListener('click', () => {
     if (thirdText.classList.contains('active')) {
         thirdText.classList.remove('active');
-        currentSortBy = 'UniqNum';
-        currentOrder = 'desc';
+        currentSortBy = '';
+        currentOrder = ''; 
         cardManager.fetchCards(); 
         resetFilters(); 
     } else {

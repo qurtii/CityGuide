@@ -83,7 +83,6 @@ body {
     padding: 0px 15%;
     @media (max-width: 650px) {
       gap: 15px;
-      justify-content: flex-start;
     }
 
     @media (max-width: 330px) {
@@ -732,12 +731,28 @@ body {
     position: absolute;
     margin-top: -45px;
     padding: 0px 0px 10px 15px;
+    @media (max-width:1050px) {
+      font-size: 20px;
+    }
+    @media (max-width:800px) {
+      font-size: 18px;
+      max-width: 200px;
+    }
+    @media (max-width:520px) {
+      max-width: unset;
+    }
+    @media (max-width:405px) {
+      max-width: 200px;
+      font-size: 16px;
+    }
   }
 
   &__search-notfound {
-    font-size: 19px;
-    font-weight: 600;
+    display: none;
     text-align: center;
+    font-size: 19px;
+    color: #888;
+    margin-top: 20px;
   }
 
   &__modal {
@@ -1337,6 +1352,9 @@ body {
     resize: none; 
     overflow: hidden; 
     font-family: Montserrat;
+    @media (max-width:750px) {
+      
+    }
   }
   &__hr{
     border-top: 1px solid #e0e0e0; 
